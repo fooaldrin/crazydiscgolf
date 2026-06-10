@@ -1,0 +1,193 @@
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#85D1DB',
+    backgroundColor: '#FFFFFF',
+  },
+  backButton: {
+    marginBottom: 10,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#85D1DB',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  content: {
+    padding: 20,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333333',
+  },
+  description: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginBottom: 30,
+    color: '#333333',
+  },
+  optionsList: {
+    gap: 15,
+  },
+  sectionHeader: {
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    color: '#85D1DB',
+    marginTop: 25,
+    marginBottom: 15,
+    textTransform: 'uppercase',
+  },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: '#C9FDF2',
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: '#85D1DB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  optionCheckboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#85D1DB',
+    marginRight: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  checkboxChecked: {
+    backgroundColor: '#B6F2D1',
+    borderColor: '#85D1DB',
+  },
+  checkboxDisabled: {
+    opacity: 0.5,
+  },
+  checkmark: {
+    color: '#333333',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  optionTextContainer: {
+    flex: 1,
+    gap: 4,
+  },
+  optionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  minPlayersBadge: {
+    backgroundColor: '#FFD166',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FFC233',
+  },
+  minPlayersText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#333333',
+  },
+  optionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+  },
+  optionDescription: {
+    fontSize: 13,
+    opacity: 0.6,
+    lineHeight: 18,
+    color: '#333333',
+  },
+  optionTextDisabled: {
+    opacity: 0.5,
+  },
+  infoBox: {
+    marginTop: 30,
+    padding: 15,
+    backgroundColor: '#B3EBF2',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#85D1DB',
+  },
+  infoText: {
+    fontSize: 14,
+    textAlign: 'center',
+    opacity: 0.8,
+    color: '#333333',
+  },
+  customActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginLeft: 8,
+  },
+  actionButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: '#85D1DB',
+  },
+  actionButtonText: {
+    fontSize: 16,
+  },
+  addButton: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: '#4DB8C4',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  addButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+});
+
+export default styles;

@@ -1,0 +1,8 @@
+npm warn Unknown user config "always-auth". This will stop working in the next major version of npm.
+Networking has been disabled
+Starting project at /Users/Thomas.Aldrin/crazydiscgolf/crazy-discgolf
+React Compiler enabled
+Starting Metro Bundler
+Skipping dependency validation in offline mode
+Waiting on http://localhost:8081
+Logs for your project will appear below.
