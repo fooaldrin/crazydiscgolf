@@ -1,9 +1,34 @@
 # Crazy Discgolf
 
+Turn every hole into a challenge round. Built by and for disc golfers who want more fun, more pressure, and more stories after the round.
+
 Crazy Discgolf is a party-style scorekeeper and challenge generator for disc golfers.
 It adds controlled chaos to your round by rolling shot modifiers every throw, so each hole feels fresh, competitive, and funny.
 
 Built for players who already love the sport, this app is designed for casual rounds, doubles nights, league side-games, and "let's make this hole weird" moments.
+
+## Visuals
+
+Add real app media here so visitors instantly understand the experience.
+
+### Screenshot Placeholders
+
+- Hero screen (home/setup): `docs/images/readme-hero-setup.png`
+- In-round gameplay screen: `docs/images/readme-gameplay.png`
+- Results screen: `docs/images/readme-results.png`
+
+### GIF Placeholder
+
+- Quick gameplay loop (setup -> roll -> score): `docs/images/readme-gameplay-loop.gif`
+
+Example embed format:
+
+```md
+![Crazy Discgolf setup screen](docs/images/readme-hero-setup.png)
+![Crazy Discgolf gameplay](docs/images/readme-gameplay.png)
+![Crazy Discgolf results](docs/images/readme-results.png)
+![Crazy Discgolf gameplay loop](docs/images/readme-gameplay-loop.gif)
+```
 
 ## Why Disc Golfers Use It
 
