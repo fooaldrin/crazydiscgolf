@@ -1,50 +1,85 @@
-# Welcome to your Expo app 👋
+# Crazy Discgolf
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Crazy Discgolf is a party-style scorekeeper and challenge generator for disc golfers.
+It adds controlled chaos to your round by rolling shot modifiers every throw, so each hole feels fresh, competitive, and funny.
 
-## Get started
+Built for players who already love the sport, this app is designed for casual rounds, doubles nights, league side-games, and "let's make this hole weird" moments.
+
+## Why Disc Golfers Use It
+
+- Keep rounds fun without making setup complicated
+- Mix strategy and randomness with rerolls and challenge options
+- Support solo sessions and multiplayer groups
+- Add custom modifiers for your local course rules and inside jokes
+- Save game progress and continue later
+
+## Core Gameplay
+
+1. Choose number of players, holes, and rerolls.
+2. Enter player names.
+3. Roll a challenge each throw (for example: Driver only, Roller, Non-dominant hand).
+4. Track throw counts per hole and per player.
+5. Review full game results at the end.
+
+## Features
+
+- Disc-golf-specific challenge pool
+   - Driver, Mid-range, Putter, Roller, Opponent's Choice, Non-dominant Hand, Mulligan, and more
+- Multiplayer-first flow
+   - Built-in turn handling and player selection prompts
+- Reroll system
+   - Limited rerolls or unlimited mode for pure chaos rounds
+- Custom challenge editor
+   - Add, edit, and remove your own modifiers
+- Persistent game state
+   - Continue saved games after closing the app
+- Mobile ads integration
+   - Banner and interstitial placements configured for release flow
+
+## Tech Stack
+
+- Expo + React Native
+- TypeScript
+- Expo Router (file-based routing)
+- AsyncStorage for local persistence
+- react-native-google-mobile-ads
+
+## Run Locally
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start the dev server
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Run on platform
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run ios
+npm run android
+npm run web
+```
 
-## Join the community
+## Quality Check
 
-Join our community of developers creating universal apps.
+```bash
+npm run lint
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Support and Privacy
+
+- Support: https://fooaldrin.github.io/crazydiscgolf/support/
+- Privacy: https://fooaldrin.github.io/crazydiscgolf/privacy/
+
+## Contributing
+
+Contributions are welcome, especially from disc golfers with ideas for new modifiers, better scoring flows, or tournament-friendly features.
+
+If you have a suggestion or bug report, open an issue:
+https://github.com/fooaldrin/crazydiscgolf/issues
