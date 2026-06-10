@@ -40,17 +40,17 @@ While AdMob is pending, finish these:
 
 GitHub Pages publish checklist (for Privacy/Support URLs):
 
-- [ ] Push current branch to GitHub
-- [ ] In GitHub repo settings, enable Pages from branch main and folder /docs
-- [ ] Confirm these URLs load publicly in a browser:
+- [x] Push current branch to GitHub
+- [x] In GitHub repo settings, enable Pages from branch main and folder /docs
+- [x] Confirm these URLs load publicly in a browser:
   - https://fooaldrin.github.io/crazydiscgolf/
   - https://fooaldrin.github.io/crazydiscgolf/privacy/
   - https://fooaldrin.github.io/crazydiscgolf/support/
 
 ## 2. Legal and Privacy
 
-- [ ] Publish a Privacy Policy page (public URL: https://fooaldrin.github.io/crazydiscgolf/privacy/)
-- [ ] Add Support URL (https://fooaldrin.github.io/crazydiscgolf/support/)
+- [x] Publish a Privacy Policy page (public URL: https://fooaldrin.github.io/crazydiscgolf/privacy/)
+- [x] Add Support URL (https://fooaldrin.github.io/crazydiscgolf/support/)
 - [ ] Fill App Privacy details in App Store Connect
 - [ ] Confirm ad/tracking declarations match app behavior
 - [ ] Decide ATT strategy (show prompt if tracking users across apps/sites)
