@@ -1,19 +1,31 @@
-import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import { BannerAdSize, BannerAd as GoogleBannerAd } from 'react-native-google-mobile-ads';
-import { useAdMobConfig } from '../../hooks/use-admob';
+import React from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import { useAdMobConfig } from "../../hooks/use-admob";
+
+type GoogleMobileAdsModule = {
+  BannerAd: React.ComponentType<{
+    unitId: string;
+    size: string;
+    requestOptions: { requestNonPersonalizedAdsOnly: boolean };
+    onAdFailedToLoad?: (error: Error) => void;
+    onAdLoaded?: () => void;
+  }>;
+  BannerAdSize: {
+    ANCHORED_ADAPTIVE_BANNER: string;
+  };
+};
 
 interface BannerAdProps {
   /**
    * Optional custom ad unit ID (defaults to config)
    */
   adUnitId?: string;
-  
+
   /**
    * Called when ad fails to load
    */
   onError?: (error: Error) => void;
-  
+
   /**
    * Called when ad loads successfully
    */
@@ -22,15 +34,43 @@ interface BannerAdProps {
 
 /**
  * Banner Ad Component
- * 
+ *
  * Displays a banner ad at the bottom of the screen.
  * Automatically uses test IDs in development mode.
  */
 export function BannerAd({ adUnitId, onError, onAdLoaded }: BannerAdProps) {
   const { bannerAdId } = useAdMobConfig();
-  
+  const [googleMobileAds, setGoogleMobileAds] =
+    React.useState<GoogleMobileAdsModule | null>(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    import("react-native-google-mobile-ads")
+      .then((module) => {
+        if (isMounted) {
+          setGoogleMobileAds(module as unknown as GoogleMobileAdsModule);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setGoogleMobileAds(null);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!googleMobileAds) {
+    return null;
+  }
+
+  const GoogleBannerAd = googleMobileAds.BannerAd;
+
   const handleAdFailedToLoad = (error: Error) => {
-    console.warn('Banner ad failed to load:', error);
+    console.warn("Banner ad failed to load:", error);
     onError?.(error);
   };
 
@@ -38,7 +78,7 @@ export function BannerAd({ adUnitId, onError, onAdLoaded }: BannerAdProps) {
     <View style={styles.container}>
       <GoogleBannerAd
         unitId={adUnitId || bannerAdId}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+        size={googleMobileAds.BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{
           requestNonPersonalizedAdsOnly: true, // Set to false if you have consent
         }}
@@ -51,12 +91,12 @@ export function BannerAd({ adUnitId, onError, onAdLoaded }: BannerAdProps) {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#000',
-    alignItems: 'center',
+    backgroundColor: "#000",
+    alignItems: "center",
     ...Platform.select({
       ios: {
         // Add safe area padding for iOS

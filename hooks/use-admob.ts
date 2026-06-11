@@ -1,9 +1,13 @@
-import { Platform } from 'react-native';
-import { TestIds } from 'react-native-google-mobile-ads';
+import { Platform } from "react-native";
+
+const TEST_IDS = {
+  BANNER: "ca-app-pub-3940256099942544/6300978111",
+  INTERSTITIAL: "ca-app-pub-3940256099942544/1033173712",
+};
 
 /**
  * Google AdMob Configuration
- * 
+ *
  * Test IDs provided by Google for development.
  * Replace with your real Ad Unit IDs for production.
  */
@@ -11,14 +15,18 @@ import { TestIds } from 'react-native-google-mobile-ads';
 export const AdMobConfig = {
   // Banner Ad Unit IDs
   bannerAdId: Platform.select({
-    ios: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_IOS || TestIds.BANNER,
-    android: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_ANDROID || TestIds.BANNER,
+    ios: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_IOS || TEST_IDS.BANNER,
+    android: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_ANDROID || TEST_IDS.BANNER,
   }) as string,
 
-  // Interstitial Video Ad Unit IDs  
+  // Interstitial Video Ad Unit IDs
   interstitialAdId: Platform.select({
-    ios: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID_IOS || TestIds.INTERSTITIAL,
-    android: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID_ANDROID || TestIds.INTERSTITIAL,
+    ios:
+      process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID_IOS ||
+      TEST_IDS.INTERSTITIAL,
+    android:
+      process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID_ANDROID ||
+      TEST_IDS.INTERSTITIAL,
   }) as string,
 };
 
@@ -28,7 +36,7 @@ export const AdMobConfig = {
 export const AdSettings = {
   // Show video ad after this many throws
   throwsPerVideoAd: 20,
-  
+
   // Enable test mode (shows test ads)
   enableTestMode: __DEV__, // Automatically true in development
 };

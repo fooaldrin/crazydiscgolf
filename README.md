@@ -49,17 +49,17 @@ Example embed format:
 ## Features
 
 - Disc-golf-specific challenge pool
-   - Driver, Mid-range, Putter, Roller, Opponent's Choice, Non-dominant Hand, Mulligan, and more
+  - Driver, Mid-range, Putter, Roller, Opponent's Choice, Non-dominant Hand, Mulligan, and more
 - Multiplayer-first flow
-   - Built-in turn handling and player selection prompts
+  - Built-in turn handling and player selection prompts
 - Reroll system
-   - Limited rerolls or unlimited mode for pure chaos rounds
+  - Limited rerolls or unlimited mode for pure chaos rounds
 - Custom challenge editor
-   - Add, edit, and remove your own modifiers
+  - Add, edit, and remove your own modifiers
 - Persistent game state
-   - Continue saved games after closing the app
+  - Continue saved games after closing the app
 - Mobile ads integration
-   - Banner and interstitial placements configured for release flow
+  - Banner and interstitial placements configured for release flow
 
 ## Tech Stack
 

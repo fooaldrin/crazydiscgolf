@@ -1,45 +1,63 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { UI_TEXT } from '@/constants/ui-text';
-import { useCustomStrings } from '@/hooks/use-custom-strings';
-import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, TextInput, TouchableOpacity, View } from 'react-native';
-import styles from './custom-string-modal.styles';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { UI_TEXT } from "@/constants/ui-text";
+import { useCustomStrings } from "@/hooks/use-custom-strings";
+import { useEffect, useState } from "react";
+import {
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import styles from "./custom-string-modal.styles";
 
 interface CustomStringModalProps {
   visible: boolean;
   editingId: string | null;
-  allStrings: { id: string; name: string; description: string; minPlayers?: number }[];
+  allStrings: {
+    id: string;
+    name: string;
+    description: string;
+    minPlayers?: number;
+  }[];
   onClose: () => void;
   onSave: (newStringId?: string) => void | Promise<void>;
 }
 
-export function CustomStringModal({ visible, editingId, allStrings, onClose, onSave }: CustomStringModalProps) {
+export function CustomStringModal({
+  visible,
+  editingId,
+  allStrings,
+  onClose,
+  onSave,
+}: CustomStringModalProps) {
   const { addCustomString, updateCustomString } = useCustomStrings();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [minPlayers, setMinPlayers] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [minPlayers, setMinPlayers] = useState("");
 
   useEffect(() => {
     if (visible) {
       if (editingId) {
-        const editingOption = allStrings.find(s => s.id === editingId);
+        const editingOption = allStrings.find((s) => s.id === editingId);
         if (editingOption) {
           setName(editingOption.name);
           setDescription(editingOption.description);
-          setMinPlayers(editingOption.minPlayers?.toString() || '');
+          setMinPlayers(editingOption.minPlayers?.toString() || "");
         }
       } else {
-        setName('');
-        setDescription('');
-        setMinPlayers('');
+        setName("");
+        setDescription("");
+        setMinPlayers("");
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, editingId]); // Only reset when modal opens or editingId changes, not when allStrings updates
 
   const handleSave = async () => {
-    if (!name.trim() || !description.trim()) {
+    if (!name.trim()) {
       return;
     }
 
@@ -47,9 +65,18 @@ export function CustomStringModal({ visible, editingId, allStrings, onClose, onS
 
     let newStringId: string | undefined;
     if (editingId) {
-      await updateCustomString(editingId, name.trim(), description.trim(), minPlayersNum);
+      await updateCustomString(
+        editingId,
+        name.trim(),
+        description.trim(),
+        minPlayersNum,
+      );
     } else {
-      const newString = await addCustomString(name.trim(), description.trim(), minPlayersNum);
+      const newString = await addCustomString(
+        name.trim(),
+        description.trim(),
+        minPlayersNum,
+      );
       newStringId = newString.id;
     }
 
@@ -67,19 +94,24 @@ export function CustomStringModal({ visible, editingId, allStrings, onClose, onS
       animationType="fade"
       onRequestClose={handleCancel}
     >
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.modalOverlay}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={handleCancel}
         >
-          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
             <ThemedView style={styles.modalContent}>
               <ThemedText type="subtitle" style={styles.modalTitle}>
-                {editingId ? UI_TEXT.SETTINGS_MODAL_TITLE_EDIT : UI_TEXT.SETTINGS_MODAL_TITLE_ADD}
+                {editingId
+                  ? UI_TEXT.SETTINGS_MODAL_TITLE_EDIT
+                  : UI_TEXT.SETTINGS_MODAL_TITLE_ADD}
               </ThemedText>
 
               <View style={styles.inputGroup}>
@@ -136,10 +168,14 @@ export function CustomStringModal({ visible, editingId, allStrings, onClose, onS
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.button, styles.saveButton, (!name.trim() || !description.trim()) && styles.saveButtonDisabled]}
+                  style={[
+                    styles.button,
+                    styles.saveButton,
+                    !name.trim() && styles.saveButtonDisabled,
+                  ]}
                   onPress={handleSave}
                   activeOpacity={0.7}
-                  disabled={!name.trim() || !description.trim()}
+                  disabled={!name.trim()}
                 >
                   <ThemedText style={styles.saveButtonText}>
                     {UI_TEXT.SETTINGS_MODAL_SAVE}
