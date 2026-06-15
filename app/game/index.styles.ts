@@ -105,7 +105,7 @@ export const styles = StyleSheet.create({
   },
   playerCard: {
     padding: 20,
-    marginBottom: 30,
+    marginBottom: 12,
     alignItems: "center",
     marginTop: 0,
   },

@@ -101,7 +101,9 @@ const styles = StyleSheet.create({
   checkmark: {
     color: "#333333",
     fontSize: 16,
+    lineHeight: 16,
     fontWeight: "bold",
+    marginTop: -1,
   },
   optionTextContainer: {
     flex: 1,
