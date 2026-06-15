@@ -1,17 +1,26 @@
-import { ThemedText } from '@/components/themed-text';
-import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import {
+    StyleSheet,
+    TouchableOpacity,
+    TouchableOpacityProps,
+} from "react-native";
 
 interface GameButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'continue' | 'basket' | 'reroll';
+  variant?: "continue" | "basket" | "reroll";
 }
 
-export function GameButton({ title, variant = 'continue', style, ...props }: GameButtonProps) {
+export function GameButton({
+  title,
+  variant = "continue",
+  style,
+  ...props
+}: GameButtonProps) {
   const getVariantStyle = () => {
     switch (variant) {
-      case 'basket':
+      case "basket":
         return styles.basketButton;
-      case 'reroll':
+      case "reroll":
         return styles.rerollButton;
       default:
         return styles.continueButton;
@@ -19,13 +28,13 @@ export function GameButton({ title, variant = 'continue', style, ...props }: Gam
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
-        styles.button, 
+        styles.button,
         getVariantStyle(),
         props.disabled && styles.buttonDisabled,
-        style
-      ]} 
+        style,
+      ]}
       {...props}
     >
       <ThemedText style={styles.buttonText}>{title}</ThemedText>
@@ -38,32 +47,32 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 16,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 0,
     minWidth: 200,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
   },
   continueButton: {
-    backgroundColor: '#B6F2D1',
+    backgroundColor: "#A8E64C",
   },
   basketButton: {
-    backgroundColor: '#FFD166',
+    backgroundColor: "#FCAE24",
   },
   rerollButton: {
-    backgroundColor: '#C9FDF2',
+    backgroundColor: "#EEF7DD",
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
-    fontFamily: 'Slackey_400Regular',
+    fontWeight: "bold",
+    color: "#333333",
+    fontFamily: "Slackey_400Regular",
     lineHeight: 24, // Add lineHeight to prevent clipping
   },
 });

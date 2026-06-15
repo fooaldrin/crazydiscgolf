@@ -6,16 +6,29 @@ const TEST_IDS = {
 };
 
 /**
+ * Production AdMob Ad Unit IDs (real, from the AdMob console).
+ * Android has no app/ad units yet, so it falls back to test IDs.
+ */
+const PROD_IDS = {
+  ios: {
+    BANNER: "ca-app-pub-2649396512295570/1197980952",
+    INTERSTITIAL: "ca-app-pub-2649396512295570/5797864651",
+  },
+};
+
+/**
  * Google AdMob Configuration
  *
- * Test IDs provided by Google for development.
- * Replace with your real Ad Unit IDs for production.
+ * Development (__DEV__) always uses Google's test IDs to avoid policy issues.
+ * Production builds use the real Ad Unit IDs above. Env vars can override.
  */
 
 export const AdMobConfig = {
   // Banner Ad Unit IDs
   bannerAdId: Platform.select({
-    ios: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_IOS || TEST_IDS.BANNER,
+    ios:
+      process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_IOS ||
+      (__DEV__ ? TEST_IDS.BANNER : PROD_IDS.ios.BANNER),
     android: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_ANDROID || TEST_IDS.BANNER,
   }) as string,
 
@@ -23,7 +36,7 @@ export const AdMobConfig = {
   interstitialAdId: Platform.select({
     ios:
       process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID_IOS ||
-      TEST_IDS.INTERSTITIAL,
+      (__DEV__ ? TEST_IDS.INTERSTITIAL : PROD_IDS.ios.INTERSTITIAL),
     android:
       process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID_ANDROID ||
       TEST_IDS.INTERSTITIAL,

@@ -1,13 +1,19 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { UI_TEXT } from '@/constants/ui-text';
-import { useGamePersistence } from '@/hooks/use-game-persistence';
-import { Slackey_400Regular, useFonts } from '@expo-google-fonts/slackey';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { styles } from './index.styles';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { UI_TEXT } from "@/constants/ui-text";
+import { useGamePersistence } from "@/hooks/use-game-persistence";
+import { Slackey_400Regular, useFonts } from "@expo-google-fonts/slackey";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    Image,
+    Linking,
+    ScrollView,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { styles } from "./index.styles";
 
 export default function HomeScreen() {
   const [numPlayers, setNumPlayers] = useState(1);
@@ -19,7 +25,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { loadGameState } = useGamePersistence();
   const insets = useSafeAreaInsets();
-  
+
   const [fontsLoaded] = useFonts({
     Slackey_400Regular,
   });
@@ -27,7 +33,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkSavedGame = async () => {
       const savedState = await loadGameState();
-      setHasSavedGame(!!savedState && savedState.screen !== 'names');
+      setHasSavedGame(!!savedState && savedState.screen !== "names");
     };
     checkSavedGame();
   }, [loadGameState]);
@@ -38,7 +44,7 @@ export default function HomeScreen() {
 
   const handleContinueSavedGame = () => {
     // Navigate to the saved game
-    router.push('/game');
+    router.push("/game");
   };
 
   const handleStartNewGame = () => {
@@ -48,12 +54,12 @@ export default function HomeScreen() {
   const handleStartGame = () => {
     // Navigate to player name entry screen with params
     router.push({
-      pathname: '/game/names',
-      params: { 
-        numPlayers: numPlayers.toString(), 
-        numHoles: numHoles.toString(), 
-        maxRerolls: unlimitedRerolls ? '-1' : maxRerolls.toString(),
-      }
+      pathname: "/game/names",
+      params: {
+        numPlayers: numPlayers.toString(),
+        numHoles: numHoles.toString(),
+        maxRerolls: unlimitedRerolls ? "-1" : maxRerolls.toString(),
+      },
     });
   };
 
@@ -61,42 +67,57 @@ export default function HomeScreen() {
   if (showGameSetup) {
     return (
       <ThemedView style={styles.container}>
-        <TouchableOpacity 
-          style={[styles.settingsButton, { top: Math.max(16, insets.top + 16) }]}
-          onPress={() => router.push('/settings')}
+        <TouchableOpacity
+          style={[
+            styles.settingsButton,
+            { top: Math.max(16, insets.top + 16) },
+          ]}
+          onPress={() => router.push("/settings")}
         >
           <ThemedText style={styles.settingsButtonText}>···</ThemedText>
         </TouchableOpacity>
-        
-        <View style={[styles.headerRow, { marginTop: Math.max(75, insets.top + 75) }]}>
-          <ThemedText type="title" style={styles.title}>{UI_TEXT.APP_TITLE}</ThemedText>
+
+        <View
+          style={[
+            styles.headerRow,
+            { marginTop: Math.max(75, insets.top + 75) },
+          ]}
+        >
+          <ThemedText type="title" style={styles.title}>
+            {UI_TEXT.APP_TITLE}
+          </ThemedText>
         </View>
 
-        <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
+        <ScrollView
+          style={styles.scrollContent}
+          contentContainerStyle={styles.scrollContentContainer}
+        >
           <ThemedView style={styles.selectorContainer}>
-            <ThemedText type="subtitle" style={styles.label}>{UI_TEXT.SETUP_NUM_PLAYERS}</ThemedText>
+            <ThemedText type="subtitle" style={styles.label}>
+              {UI_TEXT.SETUP_NUM_PLAYERS}
+            </ThemedText>
             <View style={styles.pickerRow}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 activeOpacity={0.7}
                 style={[
                   styles.pickerButton,
-                  numPlayers <= 1 && styles.disabledButton
+                  numPlayers <= 1 && styles.disabledButton,
                 ]}
                 onPress={() => setNumPlayers(Math.max(1, numPlayers - 1))}
                 disabled={numPlayers <= 1}
               >
                 <ThemedText style={styles.buttonText}>−</ThemedText>
               </TouchableOpacity>
-              
+
               <ThemedView style={styles.valueContainer}>
                 <ThemedText style={styles.valueText}>{numPlayers}</ThemedText>
               </ThemedView>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 activeOpacity={0.7}
                 style={[
                   styles.pickerButton,
-                  numPlayers >= 10 && styles.disabledButton
+                  numPlayers >= 10 && styles.disabledButton,
                 ]}
                 onPress={() => setNumPlayers(Math.min(10, numPlayers + 1))}
                 disabled={numPlayers >= 10}
@@ -107,29 +128,31 @@ export default function HomeScreen() {
           </ThemedView>
 
           <ThemedView style={styles.selectorContainer}>
-            <ThemedText type="subtitle" style={styles.label}>{UI_TEXT.SETUP_NUM_HOLES}</ThemedText>
+            <ThemedText type="subtitle" style={styles.label}>
+              {UI_TEXT.SETUP_NUM_HOLES}
+            </ThemedText>
             <View style={styles.pickerRow}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 activeOpacity={0.7}
                 style={[
                   styles.pickerButton,
-                  numHoles <= 1 && styles.disabledButton
+                  numHoles <= 1 && styles.disabledButton,
                 ]}
                 onPress={() => setNumHoles(Math.max(1, numHoles - 1))}
                 disabled={numHoles <= 1}
               >
                 <ThemedText style={styles.buttonText}>-</ThemedText>
               </TouchableOpacity>
-              
+
               <ThemedView style={styles.valueContainer}>
                 <ThemedText style={styles.valueText}>{numHoles}</ThemedText>
               </ThemedView>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 activeOpacity={0.7}
                 style={[
                   styles.pickerButton,
-                  numHoles >= 36 && styles.disabledButton
+                  numHoles >= 36 && styles.disabledButton,
                 ]}
                 onPress={() => setNumHoles(Math.min(36, numHoles + 1))}
                 disabled={numHoles >= 36}
@@ -140,35 +163,45 @@ export default function HomeScreen() {
           </ThemedView>
 
           <ThemedView style={styles.selectorContainer}>
-            <ThemedText type="subtitle" style={styles.label}>{UI_TEXT.SETUP_REROLLS}</ThemedText>
+            <ThemedText type="subtitle" style={styles.label}>
+              {UI_TEXT.SETUP_REROLLS}
+            </ThemedText>
             <View style={styles.pickerRow}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 activeOpacity={0.7}
                 style={[
                   styles.pickerButton,
-                  (maxRerolls <= 0 || unlimitedRerolls) && styles.disabledButton
+                  (maxRerolls <= 0 || unlimitedRerolls) &&
+                    styles.disabledButton,
                 ]}
                 onPress={() => setMaxRerolls(Math.max(0, maxRerolls - 1))}
                 disabled={maxRerolls <= 0 || unlimitedRerolls}
               >
                 <ThemedText style={styles.buttonText}>-</ThemedText>
               </TouchableOpacity>
-              
-              <ThemedView style={[
-                styles.valueContainer,
-                unlimitedRerolls && styles.disabledValueContainer
-              ]}>
-                <ThemedText style={[
-                  styles.valueText,
-                  unlimitedRerolls && styles.disabledText
-                ]}>{maxRerolls}</ThemedText>
+
+              <ThemedView
+                style={[
+                  styles.valueContainer,
+                  unlimitedRerolls && styles.disabledValueContainer,
+                ]}
+              >
+                <ThemedText
+                  style={[
+                    styles.valueText,
+                    unlimitedRerolls && styles.disabledText,
+                  ]}
+                >
+                  {maxRerolls}
+                </ThemedText>
               </ThemedView>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 activeOpacity={0.7}
                 style={[
                   styles.pickerButton,
-                  (maxRerolls >= 99 || unlimitedRerolls) && styles.disabledButton
+                  (maxRerolls >= 99 || unlimitedRerolls) &&
+                    styles.disabledButton,
                 ]}
                 onPress={() => setMaxRerolls(Math.min(99, maxRerolls + 1))}
                 disabled={maxRerolls >= 99 || unlimitedRerolls}
@@ -176,8 +209,8 @@ export default function HomeScreen() {
                 <ThemedText style={styles.buttonText}>+</ThemedText>
               </TouchableOpacity>
             </View>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.checkboxRow}
               onPress={() => setUnlimitedRerolls(!unlimitedRerolls)}
             >
@@ -186,17 +219,21 @@ export default function HomeScreen() {
                   <ThemedText style={styles.checkmark}>✓</ThemedText>
                 )}
               </View>
-              <ThemedText style={styles.checkboxLabel}>{UI_TEXT.SETUP_UNLIMITED_REROLLS}</ThemedText>
+              <ThemedText style={styles.checkboxLabel}>
+                {UI_TEXT.SETUP_UNLIMITED_REROLLS}
+              </ThemedText>
             </TouchableOpacity>
           </ThemedView>
         </ScrollView>
 
         <View style={styles.bottomButtonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.continueButton}
             onPress={handleStartGame}
           >
-            <ThemedText style={styles.continueButtonText}>{UI_TEXT.SETUP_START_GAME}</ThemedText>
+            <ThemedText style={styles.continueButtonText}>
+              {UI_TEXT.SETUP_START_GAME}
+            </ThemedText>
           </TouchableOpacity>
         </View>
       </ThemedView>
@@ -206,30 +243,60 @@ export default function HomeScreen() {
   // Show intro screen with continue/new game options
   return (
     <ThemedView style={styles.container}>
-      <View style={[styles.introContainer, { paddingTop: Math.max(20, insets.top) }]}>
-        <ThemedText type="title" style={styles.introTitle}>{UI_TEXT.APP_TITLE}</ThemedText>
+      <View
+        style={[
+          styles.introContainer,
+          { paddingTop: Math.max(20, insets.top) },
+        ]}
+      >
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={styles.introLogo}
+          resizeMode="contain"
+          accessibilityLabel={UI_TEXT.APP_TITLE}
+        />
       </View>
 
-      <View style={[styles.buttonArea, { paddingBottom: Math.max(40, insets.bottom + 40) }]}>
+      <View
+        style={[
+          styles.buttonArea,
+          { paddingBottom: Math.max(40, insets.bottom + 40) },
+        ]}
+      >
         {hasSavedGame && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.continueButton}
             onPress={handleContinueSavedGame}
           >
-            <ThemedText style={styles.continueButtonText}>{UI_TEXT.INTRO_CONTINUE_GAME}</ThemedText>
+            <ThemedText style={styles.continueButtonText}>
+              {UI_TEXT.INTRO_CONTINUE_GAME}
+            </ThemedText>
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.continueButton, hasSavedGame && styles.newGameButton]}
           onPress={handleStartNewGame}
         >
           <ThemedText style={styles.continueButtonText}>
-            {hasSavedGame ? UI_TEXT.INTRO_START_NEW_GAME : UI_TEXT.INTRO_LETS_PLAY}
+            {hasSavedGame
+              ? UI_TEXT.INTRO_START_NEW_GAME
+              : UI_TEXT.INTRO_LETS_PLAY}
           </ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.credit}
+          onPress={() => Linking.openURL(UI_TEXT.CREDIT_INSTAGRAM_URL)}
+          accessibilityRole="link"
+          accessibilityLabel={`${UI_TEXT.CREDIT_TEXT} on Instagram`}
+        >
+          <ThemedText style={styles.creditText}>
+            {UI_TEXT.CREDIT_TEXT}
+          </ThemedText>
+          <ThemedText style={styles.creditLink}>@aldrin_discgolf</ThemedText>
         </TouchableOpacity>
       </View>
     </ThemedView>
   );
 }
-

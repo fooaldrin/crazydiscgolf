@@ -1,26 +1,37 @@
-import { ThemedText } from '@/components/themed-text';
-import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import {
+    StyleSheet,
+    TouchableOpacity,
+    TouchableOpacityProps,
+} from "react-native";
 
 interface PrimaryButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'default' | 'large';
+  variant?: "default" | "large";
 }
 
-export function PrimaryButton({ title, variant = 'default', style, ...props }: PrimaryButtonProps) {
+export function PrimaryButton({
+  title,
+  variant = "default",
+  style,
+  ...props
+}: PrimaryButtonProps) {
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
-        styles.button, 
-        variant === 'large' && styles.buttonLarge,
+        styles.button,
+        variant === "large" && styles.buttonLarge,
         props.disabled && styles.buttonDisabled,
-        style
-      ]} 
+        style,
+      ]}
       {...props}
     >
-      <ThemedText style={[
-        styles.buttonText,
-        variant === 'large' && styles.buttonTextLarge
-      ]}>
+      <ThemedText
+        style={[
+          styles.buttonText,
+          variant === "large" && styles.buttonTextLarge,
+        ]}
+      >
         {title}
       </ThemedText>
     </TouchableOpacity>
@@ -29,13 +40,13 @@ export function PrimaryButton({ title, variant = 'default', style, ...props }: P
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#B6F2D1',
+    backgroundColor: "#A8E64C",
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: '#85D1DB',
+    borderColor: "#6BC235",
   },
   buttonLarge: {
     paddingVertical: 20,
@@ -48,8 +59,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: "bold",
+    color: "#333333",
   },
   buttonTextLarge: {
     fontSize: 32,

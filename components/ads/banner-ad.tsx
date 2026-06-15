@@ -1,6 +1,14 @@
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { useAdMobConfig } from "../../hooks/use-admob";
+
+/**
+ * Ads only work in a dev-client / production build. In Expo Go the native
+ * module is missing, so rendering it throws. Detect that and no-op.
+ */
+const adsSupported =
+  Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
 
 type GoogleMobileAdsModule = {
   BannerAd: React.ComponentType<{
@@ -44,6 +52,10 @@ export function BannerAd({ adUnitId, onError, onAdLoaded }: BannerAdProps) {
     React.useState<GoogleMobileAdsModule | null>(null);
 
   React.useEffect(() => {
+    if (!adsSupported) {
+      return;
+    }
+
     let isMounted = true;
 
     import("react-native-google-mobile-ads")

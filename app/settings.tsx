@@ -1,17 +1,30 @@
-import { CustomStringModal } from '@/components/custom-string-modal';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { UI_TEXT } from '@/constants/ui-text';
-import { useCustomStrings } from '@/hooks/use-custom-strings';
-import { useEnabledStrings } from '@/hooks/use-enabled-strings';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
-import styles from './settings.styles';
+import { CustomStringModal } from "@/components/custom-string-modal";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { UI_TEXT } from "@/constants/ui-text";
+import { useCustomStrings } from "@/hooks/use-custom-strings";
+import { useEnabledStrings } from "@/hooks/use-enabled-strings";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+    Alert,
+    Linking,
+    ScrollView,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import styles from "./settings.styles";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { enabledStrings, enabledStringIds, allStrings, loading, saveSettings, refreshSettings } = useEnabledStrings();
+  const {
+    enabledStrings,
+    enabledStringIds,
+    allStrings,
+    loading,
+    saveSettings,
+    refreshSettings,
+  } = useEnabledStrings();
   const { deleteCustomString } = useCustomStrings();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -20,25 +33,25 @@ export default function SettingsScreen() {
   useFocusEffect(
     useCallback(() => {
       refreshSettings();
-    }, [refreshSettings])
+    }, [refreshSettings]),
   );
 
-  const defaultStrings = allStrings.filter(s => !s.isCustom);
-  const customStrings = allStrings.filter(s => s.isCustom);
+  const defaultStrings = allStrings.filter((s) => !s.isCustom);
+  const customStrings = allStrings.filter((s) => s.isCustom);
 
   const toggleString = (stringId: string) => {
     let newEnabled: string[];
-    
+
     if (enabledStringIds.includes(stringId)) {
       // Don't allow unchecking if it's the last one
       if (enabledStringIds.length === 1) {
         return;
       }
-      newEnabled = enabledStringIds.filter(id => id !== stringId);
+      newEnabled = enabledStringIds.filter((id) => id !== stringId);
     } else {
       newEnabled = [...enabledStringIds, stringId];
     }
-    
+
     saveSettings(newEnabled);
   };
 
@@ -53,24 +66,24 @@ export default function SettingsScreen() {
   };
 
   const handleDeleteCustom = async (id: string) => {
-    const option = allStrings.find(s => s.id === id);
+    const option = allStrings.find((s) => s.id === id);
     if (!option) return;
 
     Alert.alert(
-      'Delete Custom Option',
+      "Delete Custom Option",
       `Are you sure you want to delete "${option.name}"? This action cannot be undone.`,
       [
         {
-          text: 'Cancel',
-          style: 'cancel',
+          text: "Cancel",
+          style: "cancel",
         },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: async () => {
             // Remove from enabled list if it's there
             if (enabledStringIds.includes(id)) {
-              const newEnabled = enabledStringIds.filter(eid => eid !== id);
+              const newEnabled = enabledStringIds.filter((eid) => eid !== id);
               await saveSettings(newEnabled);
             }
             // Delete the custom string
@@ -79,11 +92,11 @@ export default function SettingsScreen() {
             await refreshSettings();
           },
         },
-      ]
+      ],
     );
   };
 
-  const renderOption = (option: typeof allStrings[0], isCustom: boolean) => {
+  const renderOption = (option: (typeof allStrings)[0], isCustom: boolean) => {
     const isEnabled = enabledStringIds.includes(option.id);
     const isLastEnabled = enabledStringIds.length === 1 && isEnabled;
 
@@ -94,19 +107,23 @@ export default function SettingsScreen() {
           onPress={() => toggleString(option.id)}
           disabled={isLastEnabled}
         >
-          <View style={[
-            styles.checkbox,
-            isEnabled && styles.checkboxChecked,
-            isLastEnabled && styles.checkboxDisabled
-          ]}>
+          <View
+            style={[
+              styles.checkbox,
+              isEnabled && styles.checkboxChecked,
+              isLastEnabled && styles.checkboxDisabled,
+            ]}
+          >
             {isEnabled && <ThemedText style={styles.checkmark}>✓</ThemedText>}
           </View>
           <View style={styles.optionTextContainer}>
             <View style={styles.optionTitleRow}>
-              <ThemedText style={[
-                styles.optionText,
-                isLastEnabled && styles.optionTextDisabled
-              ]}>
+              <ThemedText
+                style={[
+                  styles.optionText,
+                  isLastEnabled && styles.optionTextDisabled,
+                ]}
+              >
                 {option.name}
               </ThemedText>
               {option.minPlayers && option.minPlayers > 1 && (
@@ -117,10 +134,12 @@ export default function SettingsScreen() {
                 </View>
               )}
             </View>
-            <ThemedText style={[
-              styles.optionDescription,
-              isLastEnabled && styles.optionTextDisabled
-            ]}>
+            <ThemedText
+              style={[
+                styles.optionDescription,
+                isLastEnabled && styles.optionTextDisabled,
+              ]}
+            >
               {option.description}
             </ThemedText>
           </View>
@@ -157,13 +176,23 @@ export default function SettingsScreen() {
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ThemedText style={styles.backButtonText}>{UI_TEXT.SETTINGS_BACK}</ThemedText>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <ThemedText style={styles.backButtonText}>
+            {UI_TEXT.SETTINGS_BACK}
+          </ThemedText>
         </TouchableOpacity>
-        <ThemedText type="title" style={styles.title}>{UI_TEXT.SETTINGS_TITLE}</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          {UI_TEXT.SETTINGS_TITLE}
+        </ThemedText>
       </ThemedView>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
         <ThemedText type="subtitle" style={styles.subtitle}>
           {UI_TEXT.SETTINGS_SUBTITLE}
         </ThemedText>
@@ -176,7 +205,7 @@ export default function SettingsScreen() {
           {UI_TEXT.SETTINGS_DEFAULT_SECTION}
         </ThemedText>
         <View style={styles.optionsList}>
-          {defaultStrings.map(option => renderOption(option, false))}
+          {defaultStrings.map((option) => renderOption(option, false))}
         </View>
 
         {/* Custom Options Section */}
@@ -184,8 +213,8 @@ export default function SettingsScreen() {
           {UI_TEXT.SETTINGS_CUSTOM_SECTION}
         </ThemedText>
         <View style={styles.optionsList}>
-          {customStrings.map(option => renderOption(option, true))}
-          
+          {customStrings.map((option) => renderOption(option, true))}
+
           <TouchableOpacity
             style={styles.addButton}
             onPress={handleAddCustom}
@@ -202,6 +231,18 @@ export default function SettingsScreen() {
             {UI_TEXT.SETTINGS_INFO(enabledStrings.length, allStrings.length)}
           </ThemedText>
         </ThemedView>
+
+        <TouchableOpacity
+          style={styles.credit}
+          onPress={() => Linking.openURL(UI_TEXT.CREDIT_INSTAGRAM_URL)}
+          accessibilityRole="link"
+          accessibilityLabel={`${UI_TEXT.CREDIT_TEXT} on Instagram`}
+        >
+          <ThemedText style={styles.creditText}>
+            {UI_TEXT.CREDIT_TEXT}
+          </ThemedText>
+          <ThemedText style={styles.creditLink}>@aldrin_discgolf</ThemedText>
+        </TouchableOpacity>
       </ScrollView>
 
       <CustomStringModal
@@ -214,12 +255,12 @@ export default function SettingsScreen() {
         }}
         onSave={async (newStringId) => {
           await refreshSettings();
-          
+
           // If a new custom string was created, auto-enable it
           if (newStringId && !enabledStringIds.includes(newStringId)) {
             await saveSettings([...enabledStringIds, newStringId]);
           }
-          
+
           setModalVisible(false);
           setEditingId(null);
         }}
@@ -227,4 +268,3 @@ export default function SettingsScreen() {
     </ThemedView>
   );
 }
-

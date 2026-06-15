@@ -16,6 +16,7 @@ export const styles = StyleSheet.create({
     fontSize: 32,
     color: "#333333",
     fontWeight: "400",
+    fontFamily: "Fredoka_600SemiBold",
     lineHeight: 48, // Increase lineHeight for custom font to prevent clipping
   },
   holeTransitionNumber: {
@@ -70,6 +71,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
     color: "#333333",
+    fontFamily: "Fredoka_600SemiBold",
   },
   inputContainer: {
     marginBottom: 20,
@@ -82,7 +84,7 @@ export const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 2,
-    borderColor: "#85D1DB",
+    borderColor: "#6BC235",
     borderRadius: 8,
     padding: 15,
     fontSize: 18,
@@ -90,7 +92,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   continueButton: {
-    backgroundColor: "#B6F2D1",
+    backgroundColor: "#A8E64C",
     padding: 20,
     borderRadius: 12,
     marginTop: 20,
@@ -151,7 +153,7 @@ export const styles = StyleSheet.create({
   },
   playerStatusActive: {
     fontWeight: "bold",
-    color: "#0066CC",
+    color: "#8A3FD9",
   },
   playerStatusFinished: {
     opacity: 0.5,
@@ -175,7 +177,7 @@ export const styles = StyleSheet.create({
     color: "#333333",
   },
   rollResult: {
-    backgroundColor: "#B3EBF2",
+    backgroundColor: "#D9F2B8",
     paddingVertical: 30,
     paddingHorizontal: 40,
     width: "100%",
@@ -241,17 +243,17 @@ export const styles = StyleSheet.create({
     elevation: 5,
   },
   rollButton: {
-    backgroundColor: "#85D1DB",
+    backgroundColor: "#6BC235",
   },
   disabledButton: {
     backgroundColor: "#CCCCCC",
     opacity: 0.5,
   },
   acceptButton: {
-    backgroundColor: "#B6F2D1",
+    backgroundColor: "#A8E64C",
   },
   nextHoleButton: {
-    backgroundColor: "#FFD166",
+    backgroundColor: "#FCAE24",
   },
   gameButtonText: {
     fontSize: 20,
@@ -263,7 +265,7 @@ export const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    backgroundColor: "#C9FDF2",
+    backgroundColor: "#EEF7DD",
   },
   progressText: {
     fontSize: 16,
@@ -275,8 +277,8 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 20,
     borderWidth: 0.5,
-    borderColor: "#85D1DB",
-    backgroundColor: "#C9FDF2",
+    borderColor: "#6BC235",
+    backgroundColor: "#EEF7DD",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
@@ -294,7 +296,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#85D1DB",
+    borderBottomColor: "#6BC235",
   },
   statText: {
     fontSize: 14,
@@ -312,7 +314,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#B3EBF2",
+    borderBottomColor: "#D9F2B8",
   },
   resultHole: {
     fontSize: 16,
@@ -361,7 +363,7 @@ export const styles = StyleSheet.create({
     padding: 30,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: "#85D1DB",
+    borderColor: "#6BC235",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -376,6 +378,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 15,
     color: "#333333",
+    fontFamily: "Fredoka_600SemiBold",
   },
   modalMessage: {
     textAlign: "center",
@@ -419,15 +422,15 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   playerSelectButton: {
-    backgroundColor: "#C9FDF2",
+    backgroundColor: "#EEF7DD",
     padding: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#85D1DB",
+    borderColor: "#6BC235",
   },
   playerSelectButtonCurrent: {
-    borderColor: "#0066CC",
-    backgroundColor: "#E6F3FF",
+    borderColor: "#8A3FD9",
+    backgroundColor: "#EFE3FB",
   },
   playerSelectName: {
     fontSize: 18,
@@ -453,7 +456,7 @@ export const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#85D1DB",
+    backgroundColor: "#6BC235",
     borderRadius: 4,
   },
   // Results page tabs
@@ -479,7 +482,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   tabActive: {
-    borderBottomColor: "#85D1DB",
+    borderBottomColor: "#6BC235",
   },
   tabText: {
     fontSize: 15,
@@ -504,6 +507,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     color: "#333333",
     fontSize: 20,
+    fontFamily: "Fredoka_600SemiBold",
   },
   summaryStatsRow: {
     width: "100%",
@@ -535,6 +539,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     color: "#333333",
     paddingLeft: 5,
+    fontFamily: "Fredoka_600SemiBold",
   },
   holeDetailCard: {
     backgroundColor: "#FFFFFF",
@@ -566,7 +571,7 @@ export const styles = StyleSheet.create({
   holeDetailScore: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0066CC",
+    color: "#8A3FD9",
   },
   throwsList: {
     marginTop: 5,

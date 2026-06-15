@@ -1,17 +1,20 @@
-import { ModalButton } from '@/components/buttons';
-import { ThemedText } from '@/components/themed-text';
-import { UI_TEXT } from '@/constants/ui-text';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ModalButton } from "@/components/buttons";
+import { ThemedText } from "@/components/themed-text";
+import { UI_TEXT } from "@/constants/ui-text";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface QuitConfirmModalProps {
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-export function QuitConfirmModal({ onCancel, onConfirm }: QuitConfirmModalProps) {
+export function QuitConfirmModal({
+  onCancel,
+  onConfirm,
+}: QuitConfirmModalProps) {
   return (
     <View style={styles.modalOverlay}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.modalBackdrop}
         activeOpacity={1}
         onPress={onCancel}
@@ -24,12 +27,12 @@ export function QuitConfirmModal({ onCancel, onConfirm }: QuitConfirmModalProps)
           {UI_TEXT.GAME_QUIT_CONFIRM_MESSAGE}
         </ThemedText>
         <View style={styles.modalButtons}>
-          <ModalButton 
+          <ModalButton
             title={UI_TEXT.GAME_QUIT_CONFIRM_CANCEL}
             onPress={onCancel}
             variant="cancel"
           />
-          <ModalButton 
+          <ModalButton
             title={UI_TEXT.GAME_QUIT_CONFIRM_QUIT}
             onPress={onConfirm}
             variant="danger"
@@ -42,47 +45,47 @@ export function QuitConfirmModal({ onCancel, onConfirm }: QuitConfirmModalProps)
 
 const styles = StyleSheet.create({
   modalOverlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1000,
   },
   modalBackdrop: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 25,
-    width: '85%',
+    width: "85%",
     maxWidth: 400,
     borderWidth: 2,
-    borderColor: '#85D1DB',
+    borderColor: "#6BC235",
   },
   modalTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
-    textAlign: 'center',
-    color: '#333333',
+    textAlign: "center",
+    color: "#333333",
   },
   modalMessage: {
     fontSize: 16,
     marginBottom: 25,
-    textAlign: 'center',
-    color: '#666666',
+    textAlign: "center",
+    color: "#666666",
   },
   modalButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 15,
   },
 });

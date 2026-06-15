@@ -1,17 +1,21 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ModalButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'danger' | 'cancel';
+  variant?: "primary" | "danger" | "cancel";
 }
 
-export function ModalButton({ title, onPress, variant = 'primary' }: ModalButtonProps) {
+export function ModalButton({
+  title,
+  onPress,
+  variant = "primary",
+}: ModalButtonProps) {
   const getVariantStyle = () => {
     switch (variant) {
-      case 'danger':
+      case "danger":
         return styles.dangerButton;
-      case 'cancel':
+      case "cancel":
         return styles.cancelButton;
       default:
         return styles.primaryButton;
@@ -20,9 +24,9 @@ export function ModalButton({ title, onPress, variant = 'primary' }: ModalButton
 
   const getTextStyle = () => {
     switch (variant) {
-      case 'danger':
+      case "danger":
         return styles.dangerText;
-      case 'cancel':
+      case "cancel":
         return styles.cancelText;
       default:
         return styles.primaryText;
@@ -43,45 +47,45 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   primaryButton: {
-    backgroundColor: '#B6F2D1',
+    backgroundColor: "#A8E64C",
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#85D1DB',
+    borderColor: "#6BC235",
   },
   cancelButton: {
-    backgroundColor: '#E8E8E8',
+    backgroundColor: "#E8E8E8",
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#CCCCCC',
+    borderColor: "#CCCCCC",
   },
   dangerButton: {
-    backgroundColor: '#FFB3BA',
+    backgroundColor: "#FFB3BA",
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#FF8C94',
+    borderColor: "#FF8C94",
   },
   primaryText: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#333333',
+    fontWeight: "600",
+    textAlign: "center",
+    color: "#333333",
   },
   cancelText: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#666666',
+    fontWeight: "600",
+    textAlign: "center",
+    color: "#666666",
   },
   dangerText: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#CC0000',
+    fontWeight: "600",
+    textAlign: "center",
+    color: "#CC0000",
   },
 });

@@ -1,6 +1,6 @@
-import { ThemedText } from '@/components/themed-text';
-import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
 
 interface SlotMachineProps {
   currentRoll: string;
@@ -10,7 +10,7 @@ interface SlotMachineProps {
 export function SlotMachine({ currentRoll, isAnimating }: SlotMachineProps) {
   const scrollAnim = useRef(new Animated.Value(0)).current;
   const ITEM_HEIGHT = 72;
-  
+
   useEffect(() => {
     if (isAnimating) {
       scrollAnim.setValue(0);
@@ -27,24 +27,31 @@ export function SlotMachine({ currentRoll, isAnimating }: SlotMachineProps) {
     <View style={styles.slotMachineContainer}>
       <View style={styles.slotMachine}>
         <View style={styles.slotWindow}>
-          <Animated.View 
+          <Animated.View
             style={[
               styles.slotReel,
               {
-                transform: [{
-                  translateY: scrollAnim.interpolate({
-                    inputRange: [0, ITEM_HEIGHT * 20],
-                    outputRange: [0, -(ITEM_HEIGHT * 20)],
-                  })
-                }]
-              }
+                transform: [
+                  {
+                    translateY: scrollAnim.interpolate({
+                      inputRange: [0, ITEM_HEIGHT * 20],
+                      outputRange: [0, -(ITEM_HEIGHT * 20)],
+                    }),
+                  },
+                ],
+              },
             ]}
           >
-            {Array(21).fill(currentRoll).map((_, index) => (
-              <View key={index} style={[styles.slotItem, { height: ITEM_HEIGHT }]}>
-                <ThemedText style={styles.slotText}>{currentRoll}</ThemedText>
-              </View>
-            ))}
+            {Array(21)
+              .fill(currentRoll)
+              .map((_, index) => (
+                <View
+                  key={index}
+                  style={[styles.slotItem, { height: ITEM_HEIGHT }]}
+                >
+                  <ThemedText style={styles.slotText}>{currentRoll}</ThemedText>
+                </View>
+              ))}
           </Animated.View>
         </View>
       </View>
@@ -54,35 +61,35 @@ export function SlotMachine({ currentRoll, isAnimating }: SlotMachineProps) {
 
 const styles = StyleSheet.create({
   slotMachineContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
   },
   slotMachine: {
-    width: '90%',
-    backgroundColor: '#FFFFFF',
+    width: "90%",
+    backgroundColor: "#FFFFFF",
     borderRadius: 15,
     borderWidth: 3,
-    borderColor: '#85D1DB',
-    overflow: 'hidden',
+    borderColor: "#6BC235",
+    overflow: "hidden",
   },
   slotWindow: {
     height: 72,
-    overflow: 'hidden',
-    backgroundColor: '#C9FDF2',
+    overflow: "hidden",
+    backgroundColor: "#EEF7DD",
   },
   slotReel: {
-    width: '100%',
+    width: "100%",
   },
   slotItem: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   slotText: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333333',
-    textAlign: 'center',
-    fontFamily: 'Slackey_400Regular',
+    fontWeight: "bold",
+    color: "#333333",
+    textAlign: "center",
+    fontFamily: "Slackey_400Regular",
     lineHeight: 40, // Add lineHeight to prevent clipping
   },
 });

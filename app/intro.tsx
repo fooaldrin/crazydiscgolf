@@ -1,33 +1,80 @@
-import { ThemedText } from '@/components/themed-text';
-import { UI_TEXT } from '@/constants/ui-text';
-import { useRouter } from 'expo-router';
-import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import { UI_TEXT } from "@/constants/ui-text";
+import { useGamePersistence } from "@/hooks/use-game-persistence";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    Image,
+    Linking,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function IntroScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { loadGameState } = useGamePersistence();
+  const [checkedSavedGame, setCheckedSavedGame] = useState(false);
+
+  useEffect(() => {
+    const checkSavedGame = async () => {
+      const savedState = await loadGameState();
+      // If a game is in progress, go straight to the Continue / Start New screen.
+      if (savedState && savedState.screen !== "names") {
+        router.replace("/");
+        return;
+      }
+      setCheckedSavedGame(true);
+    };
+    checkSavedGame();
+  }, [loadGameState, router]);
 
   const handleLetsPlay = () => {
-    router.push('/');
+    router.push("/");
   };
+
+  // Avoid flashing the "Let's Play" screen before the saved-game check resolves.
+  if (!checkedSavedGame) {
+    return <View style={styles.container} />;
+  }
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require('@/assets/images/splash-icon.png')}
-        style={styles.backgroundImage}
-        resizeMode="cover"
+      <View style={[styles.logoArea, { paddingTop: Math.max(20, insets.top) }]}>
+        <Image
+          source={require("@/assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityLabel={UI_TEXT.APP_TITLE}
+        />
+      </View>
+
+      <View
+        style={[
+          styles.bottomArea,
+          { paddingBottom: Math.max(40, insets.bottom + 40) },
+        ]}
       >
-        <View style={styles.overlay}>
-          <View style={styles.content}>
-            <TouchableOpacity 
-              style={styles.playButton}
-              onPress={handleLetsPlay}
-            >
-              <ThemedText style={styles.playButtonText}>{UI_TEXT.INTRO_LETS_PLAY}</ThemedText>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground>
+        <TouchableOpacity style={styles.playButton} onPress={handleLetsPlay}>
+          <ThemedText style={styles.playButtonText}>
+            {UI_TEXT.INTRO_LETS_PLAY}
+          </ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.credit}
+          onPress={() => Linking.openURL(UI_TEXT.CREDIT_INSTAGRAM_URL)}
+          accessibilityRole="link"
+          accessibilityLabel={`${UI_TEXT.CREDIT_TEXT} on Instagram`}
+        >
+          <ThemedText style={styles.creditText}>
+            {UI_TEXT.CREDIT_TEXT}
+          </ThemedText>
+          <ThemedText style={styles.creditLink}>@aldrin_discgolf</ThemedText>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -35,29 +82,33 @@ export default function IntroScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#F8F9F1",
   },
-  backgroundImage: {
+  logoArea: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Light overlay to ensure button is visible
+  logo: {
+    width: 260,
+    height: 260,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  bottomArea: {
+    paddingHorizontal: 40,
+    alignItems: "center",
+    gap: 16,
   },
   playButton: {
-    backgroundColor: '#B6F2D1',
+    backgroundColor: "#A8E64C",
     paddingVertical: 20,
     paddingHorizontal: 60,
     borderRadius: 30,
     borderWidth: 3,
-    borderColor: '#85D1DB',
-    shadowColor: '#000',
+    borderColor: "#6BC235",
+    alignSelf: "stretch",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -68,7 +119,21 @@ const styles = StyleSheet.create({
   },
   playButtonText: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: "bold",
+    color: "#333333",
+    lineHeight: 40,
+  },
+  credit: {
+    alignItems: "center",
+    gap: 2,
+  },
+  creditText: {
+    fontSize: 13,
+    color: "#666666",
+  },
+  creditLink: {
+    fontSize: 13,
+    color: "#DC6E10",
+    fontWeight: "600",
   },
 });

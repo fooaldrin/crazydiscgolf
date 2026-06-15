@@ -1,9 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   content: {
     padding: 20,
@@ -11,11 +11,11 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 48,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 40,
-    textAlign: 'center',
-    color: '#333333',
-    fontFamily: 'Slackey_400Regular',
+    textAlign: "center",
+    color: "#333333",
+    fontFamily: "Fredoka_600SemiBold",
     lineHeight: 56, // Add lineHeight to prevent clipping
   },
   inputContainer: {
@@ -23,19 +23,19 @@ export const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
-    color: '#333333',
+    color: "#333333",
   },
   input: {
-    backgroundColor: '#C9FDF2',
+    backgroundColor: "#EEF7DD",
     borderWidth: 1,
-    borderColor: '#85D1DB',
+    borderColor: "#6BC235",
     borderRadius: 12,
     padding: 15,
     fontSize: 16,
-    color: '#333333',
-    shadowColor: '#000',
+    color: "#333333",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,

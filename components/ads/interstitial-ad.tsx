@@ -1,5 +1,13 @@
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import { useCallback, useEffect, useState } from "react";
 import { useAdMobConfig } from "../../hooks/use-admob";
+
+/**
+ * Ads only work in a dev-client / production build. In Expo Go the native
+ * module is missing, so calling into it throws. Detect that and no-op.
+ */
+const adsSupported =
+  Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
 
 type InterstitialAdInstance = {
   load: () => void;
@@ -40,6 +48,10 @@ export function useInterstitialAd() {
     useState<InterstitialAdInstance | null>(null);
 
   useEffect(() => {
+    if (!adsSupported) {
+      return;
+    }
+
     let isMounted = true;
 
     import("react-native-google-mobile-ads")
