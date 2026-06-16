@@ -11,6 +11,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.crazydiscgolf.app",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
