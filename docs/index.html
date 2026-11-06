@@ -56,11 +56,12 @@
 
       html {
         scroll-behavior: smooth;
-        scroll-padding-top: 108px;
+        scroll-padding-top: 104px;
       }
 
-      [id] {
-        scroll-margin-top: 108px;
+      [id],
+      section h2 {
+        scroll-margin-top: 104px;
       }
 
       body {
@@ -73,7 +74,7 @@
           linear-gradient(180deg, var(--canopy-deep) 0%, var(--fairway-emerald) 45%, var(--canopy-floor) 100%);
         color: var(--text-primary);
         min-height: 100vh;
-        overflow-x: hidden;
+        overflow-x: clip;
         line-height: 1.5;
       }
 
@@ -1344,6 +1345,38 @@
             spinning = false;
           }
         }, 65);
+      });
+
+      // Smooth anchor scrolling accounting for sticky navbar + H2 position + 20px margin
+      function scrollToSection(hash, smooth = true) {
+        if (!hash || hash === "#") return;
+        const targetSection = document.querySelector(hash);
+        if (!targetSection) return;
+
+        const navBar = document.querySelector(".nav-bar");
+        const navBottom = navBar ? navBar.getBoundingClientRect().bottom : 84;
+        const h2 = targetSection.querySelector("h2") || targetSection;
+        const h2Rect = h2.getBoundingClientRect();
+        const extraTop = targetSection.classList.contains("manifesto-banner")
+          ? Math.max(0, h2Rect.top - targetSection.getBoundingClientRect().top)
+          : 0;
+        const targetY = window.scrollY + h2Rect.top - extraTop - navBottom - 20;
+
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: smooth ? "smooth" : "auto",
+        });
+      }
+
+      document.querySelectorAll('a[href^="#"]').forEach((link) => {
+        link.addEventListener("click", (e) => {
+          const hash = link.getAttribute("href");
+          if (hash && hash.length > 1 && document.querySelector(hash)) {
+            e.preventDefault();
+            history.pushState(null, "", hash);
+            scrollToSection(hash, true);
+          }
+        });
       });
     </script>
   </body>
