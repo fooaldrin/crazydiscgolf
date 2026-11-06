@@ -44,6 +44,10 @@
         "ascApiKeyPath": "/Users/thomasaldrin/.gemini/config/asc/AuthKey_72SDNZ868F.p8",
         "ascApiKeyIssuerId": "ed9b464b-285a-4a07-8235-a4343cbe21eb",
         "ascApiKeyId": "72SDNZ868F"
+      },
+      "android": {
+        "serviceAccountKeyPath": "/Users/thomasaldrin/.gemini/config/google-play-service-account.json",
+        "track": "internal"
       }
     }
   }
