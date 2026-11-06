@@ -737,6 +737,58 @@
         color: var(--lime-bright);
       }
 
+      /* Video Trailer Showcase Section */
+      .video-showcase {
+        margin: 16px 0 40px;
+        text-align: center;
+      }
+
+      .video-frame-wrapper {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 14px;
+        border-radius: 30px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(168, 230, 76, 0.08));
+        border: 1.5px solid var(--border-bright);
+        box-shadow: 0 28px 68px rgba(0, 0, 0, 0.55);
+      }
+
+      .video-frame-wrapper video {
+        width: 100%;
+        height: auto;
+        border-radius: 20px;
+        display: block;
+        background: #061710;
+      }
+
+      .video-actions-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .video-dl-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.09);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: var(--text-secondary);
+        transition: all 0.15s ease;
+      }
+
+      .video-dl-pill:hover {
+        border-color: var(--lime-bright);
+        color: var(--lime-bright);
+        background: rgba(168, 230, 76, 0.14);
+      }
+
       @media (max-width: 920px) {
         .hero {
           grid-template-columns: 1fr;
@@ -785,6 +837,7 @@
           <span class="brand-title">Crazy Disc Golf</span>
         </a>
         <div class="nav-links">
+          <a href="#trailer">Trailer</a>
           <a href="#promise">100% Free</a>
           <a href="#screenshots">Screenshots</a>
           <a href="#features">Features</a>
@@ -900,6 +953,35 @@
           <button type="button" class="spin-btn" id="spin-btn">
             <span>🎲 Spin Next Throw Challenge</span>
           </button>
+        </div>
+      </section>
+
+      <!-- 60fps Official App Trailer Showcase -->
+      <section class="video-showcase" id="trailer">
+        <div class="section-header" style="margin-bottom: 24px">
+          <h2>See It in Action</h2>
+          <p>
+            18-second overview of how Crazy Disc Golf turns a standard round into pure fairway entertainment (unmute for slot ticks &amp; basket chains!).
+          </p>
+        </div>
+        <div class="video-frame-wrapper">
+          <video
+            src="./assets/crazy-discgolf-promo-16x9.mp4"
+            poster="./assets/og-image.png"
+            controls
+            autoplay
+            muted
+            loop
+            playsinline
+          ></video>
+        </div>
+        <div class="video-actions-row">
+          <a href="./assets/crazy-discgolf-promo-16x9.mp4" download class="video-dl-pill">
+            🎬 Download 16:9 HD Trailer (Facebook / YouTube)
+          </a>
+          <a href="./assets/crazy-discgolf-promo-9x16.mp4" download class="video-dl-pill">
+            📱 Download 9:16 Vertical Ad (Instagram Reels / Stories)
+          </a>
         </div>
       </section>
 
