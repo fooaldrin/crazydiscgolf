@@ -1,24 +1,26 @@
-import {
-    BANNER_AD_HEIGHT,
-    BannerAd,
-    useInterstitialAd,
-} from "@/components/ads";
+import { GlassBackground } from "@/components/glass-background";
+import { GlassScrollView } from "@/components/glass-scroll-view";
+import { LiquidGlassGroup, LiquidGlassView } from "@/components/liquid-glass";
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
+import { CHALLENGE_CATEGORIES } from "@/constants/random-strings";
+import { GlassPalette } from "@/constants/theme";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useEnabledStrings } from "@/hooks/use-enabled-strings";
 import { useGamePersistence } from "@/hooks/use-game-persistence";
-import { useThrowCounter } from "@/hooks/use-throw-counter";
 import { Slackey_400Regular, useFonts } from "@expo-google-fonts/slackey";
+import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    Animated,
-    Easing,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Easing,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./index.styles";
@@ -30,10 +32,22 @@ interface ThrowResult {
 
 interface Player {
   name: string;
-  scores: string[]; // Array of strings (one per hole)
-  rerollsUsed: number; // Track rerolls used per player
-  throwsPerHole: ThrowResult[][]; // Track throws for each hole [hole][throw]
+  scores: string[];
+  rerollsUsed: number;
+  throwsPerHole: ThrowResult[][];
 }
+
+interface UndoSnapshot {
+  players: Player[];
+  currentPlayerIndex: number;
+  currentHole: number;
+  currentThrow: number;
+  currentRoll: string;
+  playersFinishedCurrentHole: number[];
+}
+
+const REEL_ITEM_HEIGHT = 54;
+const SPIN_DURATION_MS = 1650;
 
 export default function GameScreen() {
   const params = useLocalSearchParams();
@@ -43,179 +57,216 @@ export default function GameScreen() {
   const { saveGameState, loadGameState, clearGameState } = useGamePersistence();
   const insets = useSafeAreaInsets();
 
-  // AdMob Integration
-  const { isAdReady, showAd } = useInterstitialAd();
-  const { shouldShowAd, incrementThrow, resetCounter } = useThrowCounter(20); // Show video ad every 20 throws
-
   const [fontsLoaded] = useFonts({
     Slackey_400Regular,
   });
 
-  const numPlayers = parseInt(params.numPlayers as string) || 1;
-  const numHoles = parseInt(params.numHoles as string) || 9;
+  const [numPlayers, setNumPlayers] = useState<number>(
+    parseInt(params.numPlayers as string, 10) || 1,
+  );
+  const [numHoles, setNumHoles] = useState<number>(
+    parseInt(params.numHoles as string, 10) || 9,
+  );
   const maxRerollsParam = params.maxRerolls as string;
   const [maxRerolls, setMaxRerolls] = useState<number>(
     maxRerollsParam !== undefined && maxRerollsParam !== null
-      ? parseInt(maxRerollsParam)
+      ? parseInt(maxRerollsParam, 10)
       : 3,
   );
 
   const unlimitedRerolls = maxRerolls === -1;
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Parse players from params or create default
-  const initialPlayers: Player[] = params.players
-    ? JSON.parse(params.players as string)
-    : Array(numPlayers)
-        .fill(null)
-        .map((_, i) => ({
-          name: `Player ${i + 1}`,
-          scores: Array(numHoles).fill(""),
-          rerollsUsed: 0,
-          throwsPerHole: Array(numHoles)
-            .fill(null)
-            .map(() => []),
-        }));
-
-  const [screen, setScreen] = useState("game"); // Always start in game mode
-
-  // Function to get random string from enabled strings
-  const getRandomString = (excludeString?: string): string => {
-    // Filter strings based on minimum player requirements
-    let availableStrings = enabledStrings.filter((option) => {
-      // If minPlayers is not set or numPlayers meets the requirement, include it
-      return !option.minPlayers || numPlayers >= option.minPlayers;
-    });
-
-    // If we need to exclude a string and there's more than one option
-    if (excludeString && availableStrings.length > 1) {
-      availableStrings = availableStrings.filter(
-        (option) => option.name !== excludeString,
-      );
-    }
-
-    // Fallback to first available string if no strings pass the filter
-    if (availableStrings.length === 0) {
-      return enabledStrings[0]?.name || UI_TEXT.DEFAULT_RANDOM_STRING;
-    }
-
-    const randomOption =
-      availableStrings[Math.floor(Math.random() * availableStrings.length)];
-    return randomOption.name;
-  };
-  // Animate through random strings before landing on final one
-  const animateRoll = (finalRoll: string) => {
-    setIsAnimating(true);
-    setAnimationProgress(0);
-
-    // Reset description opacity
-    descriptionOpacity.setValue(0);
-
-    // Create a list of random strings with the final roll at the end
-    const reelList: string[] = [];
-
-    // Add the first visible item
-    reelList.push(getRandomString());
-
-    // Add more random items that will scroll past (24 items)
-    for (let i = 0; i < 24; i++) {
-      reelList.push(getRandomString());
-    }
-
-    // Add the second-to-last item (make sure it's different from final)
-    reelList.push(getRandomString(finalRoll));
-
-    // Add the final result
-    reelList.push(finalRoll);
-
-    setSlotMachineList(reelList);
-
-    // Reset scroll position to top
-    const itemHeight = 28; // Match the lineHeight of the text
-    scrollAnim.setValue(0);
-
-    // Calculate total scroll distance
-    // Container is 28px tall, items are 28px tall
-    // To show the last item perfectly in the window, scroll (items - 1) * height
-    // This brings the last item's top edge to the container's top edge
-    const totalDistance = (reelList.length - 1) * itemHeight;
-
-    // Animate scrolling with easing
-    Animated.timing(scrollAnim, {
-      toValue: totalDistance,
-      duration: 3000, // 3 seconds for smooth casino effect
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start(() => {
-      // Animation complete - now set the final roll for description
-      setDisplayRoll(finalRoll);
-      setIsAnimating(false);
-      setAnimationProgress(0);
-
-      // Fade in the description
-      Animated.timing(descriptionOpacity, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    });
-
-    // Update progress bar separately
-    const startTime = Date.now();
-    const updateProgress = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / 3000, 1);
-      setAnimationProgress(progress);
-
-      if (progress < 1) {
-        requestAnimationFrame(updateProgress);
+  const initialPlayers: Player[] = useMemo(() => {
+    if (params.players) {
+      try {
+        return JSON.parse(params.players as string);
+      } catch {
+        // Fallback below
       }
-    };
-    requestAnimationFrame(updateProgress);
-  };
+    }
+    return Array(numPlayers)
+      .fill(null)
+      .map((_, i) => ({
+        name: `Player ${i + 1}`,
+        scores: Array(numHoles).fill(""),
+        rerollsUsed: 0,
+        throwsPerHole: Array(numHoles)
+          .fill(null)
+          .map(() => []),
+      }));
+  }, [numHoles, numPlayers, params.players]);
 
+  const [screen, setScreen] = useState("game");
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
-
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [currentHole, setCurrentHole] = useState(0);
-  const [currentThrow, setCurrentThrow] = useState(1); // Track current throw number
+  const [currentThrow, setCurrentThrow] = useState(1);
   const [playersFinishedCurrentHole, setPlayersFinishedCurrentHole] = useState<
     Set<number>
   >(new Set());
   const [currentRoll, setCurrentRoll] = useState("");
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showPlayerSelect, setShowPlayerSelect] = useState(false);
+  const [showScorecardModal, setShowScorecardModal] = useState(false);
   const [showHoleTransition, setShowHoleTransition] = useState(false);
-  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(0); // For results page tabs
+  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayRoll, setDisplayRoll] = useState("");
   const [animationProgress, setAnimationProgress] = useState(0);
   const [slotMachineList, setSlotMachineList] = useState<string[]>([]);
+  const [undoStack, setUndoStack] = useState<UndoSnapshot[]>([]);
 
-  // Animated value for slot machine scroll
   const scrollAnim = useRef(new Animated.Value(0)).current;
-  const descriptionOpacity = useRef(new Animated.Value(0)).current;
-
-  // Ref for results page stats scroll view
+  const descriptionOpacity = useRef(new Animated.Value(1)).current;
   const statsScrollViewRef = useRef<ScrollView>(null);
+  const hapticTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const pendingFinalRollRef = useRef<string>("");
+
+  const clearHapticTimers = useCallback(() => {
+    hapticTimersRef.current.forEach((t) => clearTimeout(t));
+    hapticTimersRef.current = [];
+  }, []);
+
+  useEffect(() => {
+    return () => clearHapticTimers();
+  }, [clearHapticTimers]);
+
+  // Function to get random string from enabled strings
+  const getRandomString = useCallback(
+    (excludeString?: string): string => {
+      let availableStrings = enabledStrings.filter((option) => {
+        return !option.minPlayers || numPlayers >= option.minPlayers;
+      });
+
+      if (excludeString && availableStrings.length > 1) {
+        availableStrings = availableStrings.filter(
+          (option) => option.name !== excludeString,
+        );
+      }
+
+      if (availableStrings.length === 0) {
+        return enabledStrings[0]?.name || UI_TEXT.DEFAULT_RANDOM_STRING;
+      }
+
+      const randomOption =
+        availableStrings[Math.floor(Math.random() * availableStrings.length)];
+      return randomOption.name;
+    },
+    [enabledStrings, numPlayers],
+  );
+
+  // Schedule decelerating haptic ticks during the slot machine spin
+  const scheduleSpinHaptics = useCallback(() => {
+    clearHapticTimers();
+    const tickTimes = [90, 190, 300, 420, 560, 720, 900, 1110, 1350];
+    tickTimes.forEach((ms) => {
+      const timer = setTimeout(() => {
+        Haptics.selectionAsync().catch(() => {});
+      }, ms);
+      hapticTimersRef.current.push(timer);
+    });
+  }, [clearHapticTimers]);
+
+  // Animate through random strings before landing on final one
+  const animateRoll = useCallback(
+    (finalRoll: string) => {
+      pendingFinalRollRef.current = finalRoll;
+      setIsAnimating(true);
+      setAnimationProgress(0);
+      descriptionOpacity.setValue(0);
+
+      const reelList: string[] = [];
+      reelList.push(getRandomString());
+      for (let i = 0; i < 18; i++) {
+        reelList.push(getRandomString());
+      }
+      reelList.push(getRandomString(finalRoll));
+      reelList.push(finalRoll);
+
+      setSlotMachineList(reelList);
+      scrollAnim.setValue(0);
+
+      const totalDistance = (reelList.length - 1) * REEL_ITEM_HEIGHT;
+      scheduleSpinHaptics();
+
+      Animated.timing(scrollAnim, {
+        toValue: totalDistance,
+        duration: SPIN_DURATION_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (!finished) return;
+        clearHapticTimers();
+        Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success,
+        ).catch(() => {});
+        setDisplayRoll(finalRoll);
+        setIsAnimating(false);
+        setAnimationProgress(0);
+
+        Animated.timing(descriptionOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      });
+
+      const startTime = Date.now();
+      const updateProgress = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / SPIN_DURATION_MS, 1);
+        setAnimationProgress(progress);
+
+        if (progress < 1) {
+          requestAnimationFrame(updateProgress);
+        }
+      };
+      requestAnimationFrame(updateProgress);
+    },
+    [
+      clearHapticTimers,
+      descriptionOpacity,
+      getRandomString,
+      scheduleSpinHaptics,
+      scrollAnim,
+    ],
+  );
+
+  // Allow tapping the slot machine to skip animation on the course
+  const handleSkipAnimation = () => {
+    if (!isAnimating) return;
+    clearHapticTimers();
+    scrollAnim.stopAnimation();
+    const finalRoll = pendingFinalRollRef.current || currentRoll;
+    setDisplayRoll(finalRoll);
+    setIsAnimating(false);
+    setAnimationProgress(0);
+    descriptionOpacity.setValue(1);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+  };
 
   // Load saved game state on mount
   useEffect(() => {
     const initializeGame = async () => {
-      const savedState = await loadGameState();
+      const savedState = !params.players ? await loadGameState() : null;
 
       if (savedState && savedState.screen === "game") {
-        // Migrate old player data to include throwsPerHole if missing
+        const savedHoles = savedState.numHoles || numHoles;
+        const savedPlayersCount =
+          savedState.numPlayers || savedState.players.length || 1;
+        setNumHoles(savedHoles);
+        setNumPlayers(savedPlayersCount);
+
         const migratedPlayers = savedState.players.map((player) => ({
           ...player,
           throwsPerHole:
             player.throwsPerHole ||
-            Array(numHoles)
+            Array(savedHoles)
               .fill(null)
               .map(() => []),
         }));
 
-        // Restore saved game state
         setScreen(savedState.screen);
         setPlayers(migratedPlayers);
         setCurrentPlayerIndex(savedState.currentPlayerIndex);
@@ -225,9 +276,8 @@ export default function GameScreen() {
         setPlayersFinishedCurrentHole(
           new Set(savedState.playersFinishedCurrentHole || []),
         );
-        setDisplayRoll(savedState.currentRoll); // Show saved roll immediately without animation
+        setDisplayRoll(savedState.currentRoll);
 
-        // Restore maxRerolls from saved state if available
         if (
           savedState.maxRerolls !== undefined &&
           savedState.maxRerolls !== null
@@ -235,7 +285,6 @@ export default function GameScreen() {
           setMaxRerolls(savedState.maxRerolls);
         }
       } else {
-        // Starting a new game - show player selection modal if multiplayer
         if (numPlayers > 1) {
           setShowPlayerSelect(true);
         }
@@ -248,26 +297,20 @@ export default function GameScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Refresh settings when screen comes back into focus (after returning from settings)
   useFocusEffect(
     useCallback(() => {
       refreshSettings();
     }, [refreshSettings]),
   );
 
-  // Check if current roll is still valid after settings change, reroll if not
+  // Check if current roll is still valid after settings change
   useEffect(() => {
     if (isInitialized && currentRoll && enabledStrings.length > 0 && !loading) {
-      // Find the option that matches the current roll name
       const currentOption = allStrings.find((s) => s.name === currentRoll);
-
-      // Check if that option (by ID) is still enabled
-      // This handles name changes - as long as the ID is still enabled, don't reroll
       const isStillEnabled = currentOption
         ? enabledStrings.some((s) => s.id === currentOption.id)
         : false;
 
-      // Only reroll if the option was actually disabled, not just renamed
       if (!isStillEnabled) {
         const newRoll = getRandomString();
         setCurrentRoll(newRoll);
@@ -279,9 +322,9 @@ export default function GameScreen() {
 
   // Auto-save game state whenever it changes
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && screen === "game") {
       const gameState = {
-        screen: typeof screen === "string" ? screen : screen[0],
+        screen: "game",
         numPlayers,
         numHoles,
         maxRerolls,
@@ -294,9 +337,11 @@ export default function GameScreen() {
       };
       saveGameState(gameState);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     screen,
+    numPlayers,
+    numHoles,
+    maxRerolls,
     players,
     currentPlayerIndex,
     currentHole,
@@ -304,6 +349,7 @@ export default function GameScreen() {
     currentRoll,
     playersFinishedCurrentHole,
     isInitialized,
+    saveGameState,
   ]);
 
   useEffect(() => {
@@ -317,7 +363,6 @@ export default function GameScreen() {
       setCurrentRoll(newRoll);
       animateRoll(newRoll);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     screen,
     currentPlayerIndex,
@@ -325,17 +370,50 @@ export default function GameScreen() {
     currentRoll,
     loading,
     showPlayerSelect,
+    getRandomString,
+    animateRoll,
   ]);
 
-  // Handle quitting the game
+  const pushUndoSnapshot = () => {
+    const clonedPlayers: Player[] = JSON.parse(JSON.stringify(players));
+    setUndoStack((prev) => [
+      ...prev.slice(-15),
+      {
+        players: clonedPlayers,
+        currentPlayerIndex,
+        currentHole,
+        currentThrow,
+        currentRoll,
+        playersFinishedCurrentHole: Array.from(playersFinishedCurrentHole),
+      },
+    ]);
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length === 0 || isAnimating) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    const last = undoStack[undoStack.length - 1];
+    setUndoStack((prev) => prev.slice(0, -1));
+    setPlayers(last.players);
+    setCurrentPlayerIndex(last.currentPlayerIndex);
+    setCurrentHole(last.currentHole);
+    setCurrentThrow(last.currentThrow);
+    setCurrentRoll(last.currentRoll);
+    setDisplayRoll(last.currentRoll);
+    setPlayersFinishedCurrentHole(new Set(last.playersFinishedCurrentHole));
+    setShowHoleTransition(false);
+    setShowPlayerSelect(false);
+  };
+
   const handleQuitGame = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setShowQuitConfirm(true);
   };
 
   const confirmQuit = async () => {
     await clearGameState();
     setShowQuitConfirm(false);
-    router.push("/");
+    router.replace("/");
   };
 
   const cancelQuit = () => {
@@ -343,9 +421,9 @@ export default function GameScreen() {
   };
 
   const handleSelectNextPlayer = (playerIndex: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setShowPlayerSelect(false);
     setCurrentPlayerIndex(playerIndex);
-    // Calculate throw number - if array doesn't exist yet, start at 1
     const currentThrowCount =
       players[playerIndex].throwsPerHole[currentHole]?.length || 0;
     setCurrentThrow(currentThrowCount + 1);
@@ -354,62 +432,211 @@ export default function GameScreen() {
     animateRoll(newRoll);
   };
 
-  // Wait for fonts to load
+  const advanceToNextHoleNow = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    const nextHole = currentHole + 1;
+    setCurrentHole(nextHole);
+    setCurrentThrow(1);
+    setPlayersFinishedCurrentHole(new Set());
+    setShowHoleTransition(false);
+
+    if (numPlayers > 1) {
+      setShowPlayerSelect(true);
+    } else {
+      setCurrentPlayerIndex(0);
+      const newRoll = getRandomString();
+      setCurrentRoll(newRoll);
+      animateRoll(newRoll);
+    }
+  }, [animateRoll, currentHole, getRandomString, numPlayers]);
+
   if (!fontsLoaded) {
     return null;
   }
 
-  // Helper function to render modal
+  // Helper function to compute total throws for a player across all holes so far
+  const getPlayerTotalThrows = (player: Player) =>
+    (player.throwsPerHole || []).reduce(
+      (sum, holeThrows) => sum + (holeThrows?.length || 0),
+      0,
+    );
+
+  // Render Modals (Quit Confirm, Player Select, Live Scorecard) with Apple Liquid Glass
   const renderModal = () => {
     if (showQuitConfirm) {
       return (
         <View style={styles.modalOverlay}>
+          <BlurView
+            intensity={36}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
           <TouchableOpacity
             style={styles.modalBackdrop}
             activeOpacity={1}
             onPress={cancelQuit}
           />
-          <View style={styles.modalContent}>
+          <LiquidGlassView
+            effect="regular"
+            tintColor="rgba(12, 42, 26, 0.72)"
+            borderColor={GlassPalette.specularEmeraldRim}
+            borderRadius={26}
+            style={styles.modalContent}
+          >
             <ThemedText type="subtitle" style={styles.modalTitle}>
               {UI_TEXT.GAME_QUIT_CONFIRM_TITLE}
             </ThemedText>
             <ThemedText style={styles.modalMessage}>
               {UI_TEXT.GAME_QUIT_CONFIRM_MESSAGE}
             </ThemedText>
-            <View style={styles.modalButtons}>
+            <LiquidGlassGroup spacing={12} style={styles.modalButtons}>
               <TouchableOpacity style={styles.modalButton} onPress={cancelQuit}>
-                <View style={styles.modalCancelButton}>
+                <LiquidGlassView
+                  effect="clear"
+                  tintColor={GlassPalette.glassElevated}
+                  borderColor={GlassPalette.specularBorderBright}
+                  borderRadius={16}
+                  interactive
+                  style={styles.modalCancelButton}
+                >
                   <Text style={styles.modalCancelText}>
                     {UI_TEXT.GAME_QUIT_CONFIRM_CANCEL}
                   </Text>
-                </View>
+                </LiquidGlassView>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={confirmQuit}
               >
-                <View style={styles.modalQuitButton}>
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassDanger}
+                  borderColor="rgba(252, 165, 165, 0.65)"
+                  borderRadius={16}
+                  interactive
+                  style={styles.modalQuitButton}
+                >
                   <Text style={styles.modalQuitText}>
                     {UI_TEXT.GAME_QUIT_CONFIRM_QUIT}
                   </Text>
-                </View>
+                </LiquidGlassView>
               </TouchableOpacity>
+            </LiquidGlassGroup>
+          </LiquidGlassView>
+        </View>
+      );
+    }
+
+    if (showScorecardModal) {
+      const sortedStandings = players
+        .map((p, idx) => ({
+          player: p,
+          idx,
+          total: getPlayerTotalThrows(p),
+          currentHoleThrows: p.throwsPerHole[currentHole]?.length || 0,
+        }))
+        .sort((a, b) => a.total - b.total);
+
+      return (
+        <View style={styles.modalOverlay}>
+          <BlurView
+            intensity={36}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => setShowScorecardModal(false)}
+          />
+          <LiquidGlassView
+            effect="regular"
+            tintColor="rgba(12, 42, 26, 0.72)"
+            borderColor={GlassPalette.specularEmeraldRim}
+            borderRadius={26}
+            style={styles.modalContent}
+          >
+            <ThemedText type="subtitle" style={styles.modalTitle}>
+              📋 Live Card Standings
+            </ThemedText>
+            <ThemedText style={styles.modalMessage}>
+              Through Hole {currentHole + 1} of {numHoles}
+            </ThemedText>
+
+            <View style={styles.scorecardList}>
+              {sortedStandings.map((item, rankIdx) => (
+                <View key={item.idx} style={styles.scorecardRow}>
+                  <View style={styles.scorecardRankWrap}>
+                    <ThemedText style={styles.scorecardRankText}>
+                      #{rankIdx + 1}
+                    </ThemedText>
+                    <View>
+                      <ThemedText style={styles.scorecardPlayerName}>
+                        {item.player.name}
+                      </ThemedText>
+                      <ThemedText style={styles.scorecardSubText}>
+                        Hole {currentHole + 1}: {item.currentHoleThrows}{" "}
+                        {item.currentHoleThrows === 1 ? "throw" : "throws"}
+                        {playersFinishedCurrentHole.has(item.idx)
+                          ? " (in basket)"
+                          : ""}
+                      </ThemedText>
+                    </View>
+                  </View>
+                  <View style={styles.scorecardTotalBadge}>
+                    <ThemedText style={styles.scorecardTotalValue}>
+                      {item.total}
+                    </ThemedText>
+                    <ThemedText style={styles.scorecardTotalLabel}>
+                      throws
+                    </ThemedText>
+                  </View>
+                </View>
+              ))}
             </View>
-          </View>
+
+            <TouchableOpacity
+              onPress={() => setShowScorecardModal(false)}
+              activeOpacity={0.85}
+            >
+              <LiquidGlassView
+                effect="regular"
+                tintColor={GlassPalette.glassLimeCTA}
+                borderColor={GlassPalette.specularEmeraldRim}
+                borderRadius={16}
+                interactive
+                style={styles.scorecardCloseBtn}
+              >
+                <ThemedText style={styles.scorecardCloseText}>
+                  Back to Round
+                </ThemedText>
+              </LiquidGlassView>
+            </TouchableOpacity>
+          </LiquidGlassView>
         </View>
       );
     }
 
     if (showPlayerSelect) {
-      // Check if this is the start of a hole (no one has thrown yet)
       const isStartOfHole = players.every(
         (p) => (p.throwsPerHole[currentHole]?.length || 0) === 0,
       );
 
       return (
         <View style={styles.modalOverlay}>
+          <BlurView
+            intensity={36}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
           <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} />
-          <View style={styles.modalContent}>
+          <LiquidGlassView
+            effect="regular"
+            tintColor="rgba(12, 42, 26, 0.72)"
+            borderColor={GlassPalette.specularEmeraldRim}
+            borderRadius={26}
+            style={styles.modalContent}
+          >
             <ThemedText type="subtitle" style={styles.modalTitle}>
               {isStartOfHole
                 ? UI_TEXT.PLAYER_SELECT_WHO_FIRST
@@ -420,7 +647,7 @@ export default function GameScreen() {
                 ? UI_TEXT.PLAYER_SELECT_TEE_OFF
                 : UI_TEXT.PLAYER_SELECT_THROW_NEXT}
             </ThemedText>
-            <View style={styles.playerSelectList}>
+            <LiquidGlassGroup spacing={10} style={styles.playerSelectList}>
               {players.map((player, index) => {
                 const isFinished = playersFinishedCurrentHole.has(index);
                 const throwCount =
@@ -428,30 +655,46 @@ export default function GameScreen() {
 
                 if (isFinished) return null;
 
+                const isCurrent = index === currentPlayerIndex && !isStartOfHole;
+
                 return (
                   <TouchableOpacity
                     key={index}
-                    style={[
-                      styles.playerSelectButton,
-                      index === currentPlayerIndex &&
-                        !isStartOfHole &&
-                        styles.playerSelectButtonCurrent,
-                    ]}
+                    activeOpacity={0.8}
                     onPress={() => handleSelectNextPlayer(index)}
                   >
-                    <ThemedText style={styles.playerSelectName}>
-                      {player.name}
-                    </ThemedText>
-                    {!isStartOfHole && (
-                      <ThemedText style={styles.playerSelectThrows}>
-                        {UI_TEXT.PLAYER_SELECT_THROWS(throwCount)} so far
-                      </ThemedText>
-                    )}
+                    <LiquidGlassView
+                      effect="regular"
+                      tintColor={
+                        isCurrent
+                          ? GlassPalette.glassVioletActive
+                          : GlassPalette.glassEmerald
+                      }
+                      borderColor={
+                        isCurrent
+                          ? "rgba(216, 180, 254, 0.65)"
+                          : GlassPalette.specularEmeraldRim
+                      }
+                      borderRadius={16}
+                      interactive
+                      style={styles.playerSelectButton}
+                    >
+                      <View style={styles.playerSelectRow}>
+                        <ThemedText style={styles.playerSelectName}>
+                          {player.name}
+                        </ThemedText>
+                        <ThemedText style={styles.playerSelectThrows}>
+                          {isStartOfHole
+                            ? `Total: ${getPlayerTotalThrows(player)}`
+                            : `${UI_TEXT.PLAYER_SELECT_THROWS(throwCount)} on hole`}
+                        </ThemedText>
+                      </View>
+                    </LiquidGlassView>
                   </TouchableOpacity>
                 );
               })}
-            </View>
-          </View>
+            </LiquidGlassGroup>
+          </LiquidGlassView>
         </View>
       );
     }
@@ -461,52 +704,125 @@ export default function GameScreen() {
 
   // GAME SCREEN
   if (screen === "game") {
-    // Show hole transition screen if moving to next hole
     if (showHoleTransition) {
       return (
-        <ThemedView style={styles.holeTransitionContainer}>
-          <ThemedText style={styles.holeTransitionText}>
-            {UI_TEXT.HOLE_TRANSITION_TIME_FOR}
-          </ThemedText>
-          <ThemedText style={styles.holeTransitionNumber}>
-            {UI_TEXT.HOLE_TRANSITION_HOLE(currentHole + 2)}
-          </ThemedText>
-        </ThemedView>
+        <GlassBackground variant="celebration">
+          <View
+            style={[
+              styles.holeTransitionContainer,
+              {
+                paddingTop: Math.max(24, insets.top + 16),
+                paddingBottom: Math.max(28, insets.bottom + 20),
+              },
+            ]}
+          >
+            <View style={styles.holeTransitionCenter}>
+              <LiquidGlassView
+                effect="regular"
+                tintColor={GlassPalette.glassEmerald}
+                borderColor={GlassPalette.specularEmeraldRim}
+                borderRadius={999}
+                style={styles.holeCompleteBadge}
+              >
+                <ThemedText style={styles.holeCompleteBadgeText}>
+                  {UI_TEXT.HOLE_TRANSITION_COMPLETE(currentHole + 1)}
+                </ThemedText>
+              </LiquidGlassView>
+
+              <ThemedText style={styles.holeTransitionText}>
+                {UI_TEXT.HOLE_TRANSITION_TIME_FOR}
+              </ThemedText>
+              <ThemedText style={styles.holeTransitionNumber}>
+                {UI_TEXT.HOLE_TRANSITION_HOLE(currentHole + 2)}
+              </ThemedText>
+
+              <LiquidGlassView
+                effect="regular"
+                tintColor={GlassPalette.glassElevated}
+                borderColor={GlassPalette.specularBorderBright}
+                borderRadius={24}
+                style={styles.holeSummaryCard}
+              >
+                <ThemedText style={styles.holeSummaryTitle}>
+                  Hole {currentHole + 1} Scores
+                </ThemedText>
+                {players.map((p, idx) => {
+                  const holeThrows = p.throwsPerHole[currentHole]?.length || 0;
+                  return (
+                    <View key={idx} style={styles.holeSummaryRow}>
+                      <ThemedText style={styles.holeSummaryPlayer}>
+                        {p.name}
+                      </ThemedText>
+                      <ThemedText style={styles.holeSummaryScore}>
+                        {holeThrows} {holeThrows === 1 ? "throw" : "throws"}{" "}
+                        (Total: {getPlayerTotalThrows(p)})
+                      </ThemedText>
+                    </View>
+                  );
+                })}
+              </LiquidGlassView>
+            </View>
+
+            <TouchableOpacity
+              style={styles.holeTransitionNextBtnWrap}
+              onPress={advanceToNextHoleNow}
+              activeOpacity={0.85}
+            >
+              <LiquidGlassView
+                effect="regular"
+                tintColor={GlassPalette.glassLimeCTA}
+                borderColor={GlassPalette.specularEmeraldRim}
+                borderRadius={20}
+                interactive
+                style={styles.holeTransitionNextBtn}
+              >
+                <ThemedText style={styles.holeTransitionNextBtnText}>
+                  {UI_TEXT.HOLE_TRANSITION_NEXT_BUTTON(currentHole + 2)}
+                </ThemedText>
+              </LiquidGlassView>
+            </TouchableOpacity>
+          </View>
+        </GlassBackground>
       );
     }
 
-    const currentPlayer = players[currentPlayerIndex];
+    const currentPlayer = players[currentPlayerIndex] || players[0];
     const rerollsRemaining = unlimitedRerolls
       ? Infinity
       : maxRerolls - currentPlayer.rerollsUsed;
     const canReroll = unlimitedRerolls || rerollsRemaining > 0;
 
-    // Find the current roll option to display its description
     const displayedRoll = displayRoll || currentRoll;
-    const currentRollOption = enabledStrings.find(
-      (s) => s.name === displayedRoll,
-    );
+    const currentRollOption = allStrings.find((s) => s.name === displayedRoll);
+    const categoryMeta =
+      CHALLENGE_CATEGORIES[
+        currentRollOption?.category ||
+          (currentRollOption?.isCustom ? "custom" : "disc")
+      ];
 
     const handleRollAgain = () => {
-      if (canReroll) {
+      if (canReroll && !isAnimating) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         const newRoll = getRandomString(currentRoll);
         setCurrentRoll(newRoll);
         animateRoll(newRoll);
 
-        // Update player's total rerolls used (only if not unlimited)
         if (!unlimitedRerolls) {
           const newPlayers = [...players];
-          newPlayers[currentPlayerIndex].rerollsUsed += 1;
+          newPlayers[currentPlayerIndex] = {
+            ...newPlayers[currentPlayerIndex],
+            rerollsUsed: newPlayers[currentPlayerIndex].rerollsUsed + 1,
+          };
           setPlayers(newPlayers);
         }
       }
     };
 
-    const handleContinue = async () => {
-      // Record this throw for the current player
-      const newPlayers = [...players];
+    const handleContinue = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      pushUndoSnapshot();
 
-      // Ensure the throwsPerHole array exists for this hole
+      const newPlayers: Player[] = JSON.parse(JSON.stringify(players));
       if (!newPlayers[currentPlayerIndex].throwsPerHole[currentHole]) {
         newPlayers[currentPlayerIndex].throwsPerHole[currentHole] = [];
       }
@@ -515,27 +831,9 @@ export default function GameScreen() {
         result: currentRoll,
       });
       setPlayers(newPlayers);
-
-      // Increment throw counter for this player
       setCurrentThrow(currentThrow + 1);
 
-      // Track throw for ad display
-      incrementThrow();
-
-      // Debug logging for ad system
-      console.log("🎯 Throw tracked! Ad Status:", { shouldShowAd, isAdReady });
-
-      // Check if we should show a video ad
-      if (shouldShowAd && isAdReady) {
-        console.log("🎬 Showing video ad now!");
-        await showAd();
-        resetCounter();
-      } else if (shouldShowAd && !isAdReady) {
-        console.log("⚠️ Ad should show but not ready yet");
-      }
-
-      // Check if there are other players still playing
-      const activePlayers = players.filter(
+      const activePlayers = newPlayers.filter(
         (_, idx) => !playersFinishedCurrentHole.has(idx),
       );
 
@@ -543,18 +841,15 @@ export default function GameScreen() {
         activePlayers.length === 1 &&
         !playersFinishedCurrentHole.has(currentPlayerIndex)
       ) {
-        // Current player is the only one still playing - let them continue
         const newRoll = getRandomString();
         setCurrentRoll(newRoll);
         animateRoll(newRoll);
         return;
       }
 
-      // Multiple players still active - show player selection for multi-player games
       if (numPlayers > 1) {
         setShowPlayerSelect(true);
       } else {
-        // Single player - just continue
         const newRoll = getRandomString();
         setCurrentRoll(newRoll);
         animateRoll(newRoll);
@@ -562,11 +857,14 @@ export default function GameScreen() {
     };
 
     const handleFinishHole = async () => {
-      // Save the final score for this hole for the current player
-      const newPlayers = [...players];
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      ).catch(() => {});
+      pushUndoSnapshot();
+
+      const newPlayers: Player[] = JSON.parse(JSON.stringify(players));
       newPlayers[currentPlayerIndex].scores[currentHole] = currentRoll;
 
-      // Ensure the throwsPerHole array exists for this hole
       if (!newPlayers[currentPlayerIndex].throwsPerHole[currentHole]) {
         newPlayers[currentPlayerIndex].throwsPerHole[currentHole] = [];
       }
@@ -576,73 +874,20 @@ export default function GameScreen() {
       });
       setPlayers(newPlayers);
 
-      // Track throw for ad display
-      incrementThrow();
-
-      // Debug logging for ad system
-      console.log("🎯 Throw tracked (finish hole)! Ad Status:", {
-        shouldShowAd,
-        isAdReady,
-      });
-
-      // Check if we should show a video ad
-      if (shouldShowAd && isAdReady) {
-        console.log("🎬 Showing video ad now!");
-        await showAd();
-        resetCounter();
-      } else if (shouldShowAd && !isAdReady) {
-        console.log("⚠️ Ad should show but not ready yet");
-      }
-
-      // Mark current player as finished with this hole
       const newFinishedPlayers = new Set(playersFinishedCurrentHole);
       newFinishedPlayers.add(currentPlayerIndex);
       setPlayersFinishedCurrentHole(newFinishedPlayers);
 
-      // Debug: Log state
       const actualNumPlayers = newPlayers.length;
-      console.log(
-        "Players finished:",
-        newFinishedPlayers.size,
-        "out of",
-        actualNumPlayers,
-      );
-      console.log("Finished player indices:", Array.from(newFinishedPlayers));
 
-      // Check if all players have completed this hole - use actual player count
       if (newFinishedPlayers.size === actualNumPlayers) {
-        // All players finished this hole
-        console.log("All players finished hole", currentHole + 1);
         if (currentHole < numHoles - 1) {
-          // Show hole transition screen
           setShowHoleTransition(true);
-
-          // After 3 seconds, show player selection for new hole (or start if single player)
-          setTimeout(() => {
-            setCurrentHole(currentHole + 1);
-            setCurrentThrow(1); // Reset throw counter for new hole
-            setPlayersFinishedCurrentHole(new Set()); // Reset finished players for new hole
-            setShowHoleTransition(false);
-
-            // For multi-player, show player selection to choose who goes first
-            // For single player, just start
-            if (numPlayers > 1) {
-              setShowPlayerSelect(true);
-            } else {
-              setCurrentPlayerIndex(0);
-              const newRoll = getRandomString();
-              setCurrentRoll(newRoll);
-              animateRoll(newRoll);
-            }
-          }, 3000);
         } else {
-          // Game finished - clear saved state
           await clearGameState();
           setScreen("results");
         }
       } else {
-        // Not all players finished - find next player who hasn't finished this hole
-        console.log("Not all finished. Finding next unfinished player...");
         let nextPlayerIndex = (currentPlayerIndex + 1) % actualNumPlayers;
         let attempts = 0;
         while (
@@ -653,23 +898,12 @@ export default function GameScreen() {
           attempts++;
         }
 
-        // Safety check: if we couldn't find an unfinished player, something is wrong
         if (attempts >= actualNumPlayers) {
-          console.error(
-            "Could not find unfinished player! This should not happen.",
-          );
-          // Fallback: show player selection modal
           setShowPlayerSelect(true);
           return;
         }
 
-        console.log(
-          "Switching to player",
-          nextPlayerIndex,
-          "who has not finished",
-        );
         setCurrentPlayerIndex(nextPlayerIndex);
-        // Calculate throw number safely
         const nextPlayerThrows =
           newPlayers[nextPlayerIndex].throwsPerHole[currentHole]?.length || 0;
         setCurrentThrow(nextPlayerThrows + 1);
@@ -680,316 +914,779 @@ export default function GameScreen() {
     };
 
     return (
-      <>
-        <ThemedView style={styles.container}>
-          <ScrollView
-            style={styles.scrollContent}
-            contentContainerStyle={[
-              styles.scrollContentContainer,
-              { paddingTop: Math.max(20, insets.top) },
+      <GlassBackground variant="game">
+        <View style={styles.container}>
+          {/* Top Floating Liquid Glass HUD Bar */}
+          <LiquidGlassGroup
+            spacing={10}
+            style={[
+              styles.topHeaderBar,
+              { paddingTop: Math.max(12, insets.top + 6) },
             ]}
           >
             <TouchableOpacity
-              style={[styles.settingsButton, { top: Math.max(4, insets.top) }]}
-              onPress={() => router.push("/settings")}
+              activeOpacity={0.8}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                  () => {},
+                );
+                setShowScorecardModal(true);
+              }}
             >
-              <ThemedText style={styles.settingsButtonText}>···</ThemedText>
+              <LiquidGlassView
+                effect="clear"
+                tintColor={GlassPalette.glassNeutral}
+                borderColor={GlassPalette.specularBorderBright}
+                borderRadius={999}
+                interactive
+                style={styles.topUtilityPill}
+              >
+                <ThemedText style={styles.topUtilityPillText}>
+                  {UI_TEXT.GAME_BUTTON_SCORECARD}
+                </ThemedText>
+              </LiquidGlassView>
             </TouchableOpacity>
 
-            <ThemedView style={styles.playerCard}>
+            <LiquidGlassView
+              effect="regular"
+              tintColor={GlassPalette.glassEmerald}
+              borderColor={GlassPalette.specularEmeraldRim}
+              borderRadius={999}
+              style={styles.holeBadgeCenter}
+            >
+              <ThemedText style={styles.holeBadgeText}>
+                HOLE {currentHole + 1} / {numHoles}
+              </ThemedText>
+            </LiquidGlassView>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                  () => {},
+                );
+                router.push("/settings");
+              }}
+            >
+              <LiquidGlassView
+                effect="clear"
+                tintColor={GlassPalette.glassNeutral}
+                borderColor={GlassPalette.specularBorderBright}
+                borderRadius={999}
+                interactive
+                style={styles.topUtilityPill}
+              >
+                <ThemedText style={styles.topUtilityPillText}>
+                  ⚙️ Rules
+                </ThemedText>
+              </LiquidGlassView>
+            </TouchableOpacity>
+          </LiquidGlassGroup>
+
+          <GlassScrollView
+            style={styles.scrollContent}
+            contentContainerStyle={styles.scrollContentContainer}
+          >
+            {/* Current Player Hero Header */}
+            <View style={styles.playerCard}>
               <ThemedText type="title" style={styles.playerName}>
                 {currentPlayer.name}
               </ThemedText>
-              <ThemedText style={styles.holeNumber}>
-                Hole {currentHole + 1} of {numHoles} • Throw {currentThrow}
-              </ThemedText>
-            </ThemedView>
+              <View style={styles.throwPillRow}>
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassGoldCTA}
+                  borderColor={GlassPalette.specularGoldRim}
+                  borderRadius={999}
+                  style={styles.throwBadge}
+                >
+                  <ThemedText style={styles.throwBadgeText}>
+                    {UI_TEXT.GAME_THROW(currentThrow)}
+                  </ThemedText>
+                </LiquidGlassView>
+                <ThemedText style={styles.totalStrokesSub}>
+                  Round Total: {getPlayerTotalThrows(currentPlayer)}{" "}
+                  {getPlayerTotalThrows(currentPlayer) === 1
+                    ? "throw"
+                    : "throws"}
+                </ThemedText>
+              </View>
+            </View>
 
+            {/* Multiplayer Card Status Strip */}
             {numPlayers > 1 && (
-              <ThemedView style={styles.playerStatusContainer}>
+              <LiquidGlassView
+                effect="regular"
+                tintColor={GlassPalette.glassNeutral}
+                borderColor={GlassPalette.specularBorderSoft}
+                borderRadius={20}
+                style={styles.playerStatusContainer}
+              >
                 <View style={styles.playerStatusList}>
-                  {players.map((player, index) => (
-                    <View key={index} style={styles.playerStatusItem}>
-                      <ThemedText
-                        style={[
-                          styles.playerStatusName,
-                          index === currentPlayerIndex &&
-                            styles.playerStatusActive,
-                          playersFinishedCurrentHole.has(index) &&
-                            styles.playerStatusFinished,
-                        ]}
+                  {players.map((player, index) => {
+                    const isFinished = playersFinishedCurrentHole.has(index);
+                    const isActive = index === currentPlayerIndex;
+                    const holeThrows =
+                      player.throwsPerHole[currentHole]?.length || 0;
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        activeOpacity={0.75}
+                        disabled={isFinished || isAnimating}
+                        onPress={() => {
+                          if (!isFinished && index !== currentPlayerIndex) {
+                            handleSelectNextPlayer(index);
+                          }
+                        }}
+                        style={styles.playerStatusItemWrap}
                       >
-                        {playersFinishedCurrentHole.has(index) ? "✓ " : ""}
-                        {player.name}
-                      </ThemedText>
-                    </View>
-                  ))}
+                        <LiquidGlassView
+                          effect={isActive ? "regular" : "clear"}
+                          tintColor={
+                            isActive
+                              ? GlassPalette.glassVioletActive
+                              : "rgba(255, 255, 255, 0.06)"
+                          }
+                          borderColor={
+                            isActive
+                              ? "rgba(216, 180, 254, 0.65)"
+                              : GlassPalette.specularBorderSoft
+                          }
+                          borderRadius={14}
+                          interactive={!isFinished}
+                          style={[
+                            styles.playerStatusItem,
+                            isFinished && styles.playerStatusItemFinished,
+                          ]}
+                        >
+                          <ThemedText
+                            numberOfLines={1}
+                            style={[
+                              styles.playerStatusName,
+                              isActive && styles.playerStatusActive,
+                              isFinished && styles.playerStatusFinished,
+                            ]}
+                          >
+                            {isFinished ? "✓ " : ""}
+                            {player.name}
+                          </ThemedText>
+                          <ThemedText style={styles.playerStatusThrowCount}>
+                            {holeThrows}
+                          </ThemedText>
+                        </LiquidGlassView>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
-              </ThemedView>
+              </LiquidGlassView>
             )}
 
-            <ThemedView style={styles.rollContainer}>
-              <ThemedView style={styles.rollResult}>
-                {isAnimating ? (
-                  <>
-                    <View style={styles.slotMachineContainer}>
-                      <Animated.View
-                        style={[
-                          styles.slotMachineReel,
-                          {
-                            transform: [
-                              { translateY: Animated.multiply(scrollAnim, -1) },
-                            ],
-                          },
-                        ]}
-                      >
-                        {slotMachineList.map((item, index) => (
-                          <View key={index} style={styles.slotMachineItem}>
-                            <Text
-                              style={styles.rollText}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
-                              {item}
-                            </Text>
-                          </View>
-                        ))}
-                      </Animated.View>
-                    </View>
-                    <View style={styles.progressBarContainer}>
-                      <View style={styles.progressBarBackground}>
-                        <View
-                          style={[
-                            styles.progressBarFill,
-                            { width: `${animationProgress * 100}%` },
-                          ]}
-                        />
-                      </View>
-                    </View>
-                  </>
-                ) : (
-                  <>
-                    <View style={styles.slotMachineContainer}>
-                      <Text
-                        style={styles.rollText}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {displayedRoll}
-                      </Text>
-                    </View>
-                    <View style={styles.progressBarContainer}>
-                      <View style={styles.progressBarBackground} />
-                    </View>
-                  </>
-                )}
-              </ThemedView>
-
-              {currentRollOption && (
-                <Animated.Text
-                  style={[
-                    styles.rollDescription,
-                    { opacity: isAnimating ? 0 : descriptionOpacity },
-                  ]}
+            {/* Centerpiece 3D Liquid Glass Slot Machine Chamber */}
+            <View style={styles.rollContainer}>
+              <TouchableOpacity
+                activeOpacity={isAnimating ? 0.88 : 1}
+                onPress={handleSkipAnimation}
+                style={styles.rollCardTouchable}
+              >
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassElevated}
+                  borderColor={GlassPalette.specularEmeraldRim}
+                  borderRadius={28}
+                  interactive={isAnimating}
+                  style={styles.rollCardOuter}
                 >
-                  {currentRollOption.description}
-                </Animated.Text>
-              )}
-            </ThemedView>
-          </ScrollView>
+                  {/* Category Pill */}
+                  <View
+                    style={[
+                      styles.categoryBadge,
+                      {
+                        backgroundColor: categoryMeta.bgColor,
+                        borderColor: categoryMeta.borderColor,
+                      },
+                    ]}
+                  >
+                    <ThemedText
+                      style={[
+                        styles.categoryBadgeText,
+                        { color: categoryMeta.textColor },
+                      ]}
+                    >
+                      {isAnimating
+                        ? "🎰 ROLLING SHOT MODIFIER..."
+                        : `${categoryMeta.emoji} ${categoryMeta.label.toUpperCase()}`}
+                    </ThemedText>
+                  </View>
 
+                  {/* Recessed 3D Cylindrical Drum with Optical Vignettes */}
+                  <View style={styles.rollResult}>
+                    <LinearGradient
+                      pointerEvents="none"
+                      colors={["rgba(3, 12, 8, 0.82)", "rgba(3, 12, 8, 0.0)"]}
+                      style={styles.drumVignetteTop}
+                    />
+                    <LinearGradient
+                      pointerEvents="none"
+                      colors={["rgba(3, 12, 8, 0.0)", "rgba(3, 12, 8, 0.82)"]}
+                      style={styles.drumVignetteBottom}
+                    />
+
+                    {isAnimating ? (
+                      <>
+                        <View style={styles.slotMachineContainer}>
+                          <Animated.View
+                            style={[
+                              styles.slotMachineReel,
+                              {
+                                transform: [
+                                  {
+                                    translateY: Animated.multiply(
+                                      scrollAnim,
+                                      -1,
+                                    ),
+                                  },
+                                ],
+                              },
+                            ]}
+                          >
+                            {slotMachineList.map((item, index) => (
+                              <View key={index} style={styles.slotMachineItem}>
+                                <Text
+                                  style={styles.rollText}
+                                  numberOfLines={1}
+                                  adjustsFontSizeToFit
+                                >
+                                  {item}
+                                </Text>
+                              </View>
+                            ))}
+                          </Animated.View>
+                        </View>
+                        <View style={styles.progressBarContainer}>
+                          <View style={styles.progressBarBackground}>
+                            <View
+                              style={[
+                                styles.progressBarFill,
+                                { width: `${animationProgress * 100}%` },
+                              ]}
+                            />
+                          </View>
+                          <ThemedText style={styles.tapToSkipHint}>
+                            Tap chamber to skip spin
+                          </ThemedText>
+                        </View>
+                      </>
+                    ) : (
+                      <View style={styles.slotMachineContainer}>
+                        <View style={styles.slotMachineItem}>
+                          <Text
+                            style={styles.rollText}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                          >
+                            {displayedRoll}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+
+                  {currentRollOption && !isAnimating && (
+                    <Animated.Text
+                      style={[
+                        styles.rollDescription,
+                        { opacity: descriptionOpacity },
+                      ]}
+                    >
+                      {currentRollOption.description}
+                    </Animated.Text>
+                  )}
+                </LiquidGlassView>
+              </TouchableOpacity>
+            </View>
+          </GlassScrollView>
+
+          {/* Bottom Liquid Glass Action Dock (Zero Ads!) */}
           <View
             style={[
               styles.bottomButtonContainer,
-              { paddingBottom: BANNER_AD_HEIGHT + Math.max(10, insets.bottom) },
+              { paddingBottom: Math.max(16, insets.bottom + 8) },
             ]}
           >
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.gameButton,
-                  styles.acceptButton,
-                  isAnimating && styles.disabledButton,
-                ]}
-                onPress={handleContinue}
-                disabled={isAnimating}
-              >
-                <ThemedText style={styles.gameButtonText}>
-                  {UI_TEXT.GAME_BUTTON_NEXT_SHOT}
-                </ThemedText>
-              </TouchableOpacity>
+            <LiquidGlassGroup spacing={12} style={styles.buttonContainer}>
+              <View style={styles.primaryActionsRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.halfButton,
+                    isAnimating && styles.disabledButtonWrap,
+                  ]}
+                  onPress={handleContinue}
+                  disabled={isAnimating}
+                  activeOpacity={0.85}
+                >
+                  <LiquidGlassView
+                    effect="regular"
+                    tintColor={GlassPalette.glassLimeCTA}
+                    borderColor={GlassPalette.specularEmeraldRim}
+                    borderRadius={20}
+                    interactive={!isAnimating}
+                    style={styles.gameButtonGlass}
+                  >
+                    <ThemedText style={styles.gameButtonText}>
+                      {UI_TEXT.GAME_BUTTON_NEXT_SHOT}
+                    </ThemedText>
+                  </LiquidGlassView>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.gameButton,
-                  styles.nextHoleButton,
-                  isAnimating && styles.disabledButton,
-                ]}
-                onPress={handleFinishHole}
-                disabled={isAnimating}
-              >
-                <ThemedText style={styles.gameButtonText}>
-                  {UI_TEXT.GAME_BUTTON_IN_BASKET}
-                </ThemedText>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.halfButton,
+                    isAnimating && styles.disabledButtonWrap,
+                  ]}
+                  onPress={handleFinishHole}
+                  disabled={isAnimating}
+                  activeOpacity={0.85}
+                >
+                  <LiquidGlassView
+                    effect="regular"
+                    tintColor={GlassPalette.glassGoldCTA}
+                    borderColor={GlassPalette.specularGoldRim}
+                    borderRadius={20}
+                    interactive={!isAnimating}
+                    style={styles.gameButtonGlass}
+                  >
+                    <ThemedText style={styles.inBasketButtonText}>
+                      {UI_TEXT.GAME_BUTTON_IN_BASKET}
+                    </ThemedText>
+                  </LiquidGlassView>
+                </TouchableOpacity>
+              </View>
 
               {(maxRerolls > 0 || unlimitedRerolls) && (
                 <TouchableOpacity
-                  style={[
-                    styles.gameButton,
-                    styles.rollButton,
-                    (!canReroll || isAnimating) && styles.disabledButton,
-                  ]}
+                  style={
+                    (!canReroll || isAnimating) && styles.disabledButtonWrap
+                  }
                   onPress={handleRollAgain}
                   disabled={!canReroll || isAnimating}
+                  activeOpacity={0.85}
                 >
-                  <ThemedText style={styles.gameButtonText}>
-                    {unlimitedRerolls
-                      ? UI_TEXT.GAME_BUTTON_ROLL_AGAIN
-                      : canReroll
-                        ? UI_TEXT.GAME_BUTTON_ROLL_AGAIN_COUNT(
-                            rerollsRemaining,
-                            maxRerolls,
-                          )
-                        : UI_TEXT.GAME_BUTTON_NO_REROLLS}
-                  </ThemedText>
+                  <LiquidGlassView
+                    effect="clear"
+                    tintColor={GlassPalette.glassNeutral}
+                    borderColor={GlassPalette.specularBorderBright}
+                    borderRadius={18}
+                    interactive={canReroll && !isAnimating}
+                    style={styles.rollButtonGlass}
+                  >
+                    <ThemedText style={styles.rollButtonText}>
+                      {unlimitedRerolls
+                        ? UI_TEXT.GAME_BUTTON_ROLL_AGAIN
+                        : canReroll
+                          ? UI_TEXT.GAME_BUTTON_ROLL_AGAIN_COUNT(
+                              rerollsRemaining,
+                              maxRerolls,
+                            )
+                          : UI_TEXT.GAME_BUTTON_NO_REROLLS}
+                    </ThemedText>
+                  </LiquidGlassView>
                 </TouchableOpacity>
               )}
-            </View>
+            </LiquidGlassGroup>
 
-            <TouchableOpacity
-              style={styles.quitButton}
-              onPress={handleQuitGame}
-            >
-              <ThemedText style={styles.quitButtonText}>
-                {UI_TEXT.GAME_BUTTON_QUIT}
-              </ThemedText>
-            </TouchableOpacity>
+            <View style={styles.bottomFooterLinks}>
+              {undoStack.length > 0 && (
+                <TouchableOpacity
+                  onPress={handleUndo}
+                  disabled={isAnimating}
+                  activeOpacity={0.8}
+                >
+                  <LiquidGlassView
+                    effect="clear"
+                    tintColor="rgba(252, 174, 36, 0.16)"
+                    borderColor={GlassPalette.specularGoldRim}
+                    borderRadius={999}
+                    interactive
+                    style={styles.footerGlassPill}
+                  >
+                    <ThemedText style={styles.undoButtonText}>
+                      {UI_TEXT.GAME_BUTTON_UNDO}
+                    </ThemedText>
+                  </LiquidGlassView>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity onPress={handleQuitGame} activeOpacity={0.8}>
+                <LiquidGlassView
+                  effect="clear"
+                  tintColor="rgba(255, 255, 255, 0.06)"
+                  borderColor={GlassPalette.specularBorderSoft}
+                  borderRadius={999}
+                  interactive
+                  style={styles.footerGlassPill}
+                >
+                  <ThemedText style={styles.quitButtonText}>
+                    {UI_TEXT.GAME_BUTTON_QUIT}
+                  </ThemedText>
+                </LiquidGlassView>
+              </TouchableOpacity>
+            </View>
           </View>
-        </ThemedView>
+        </View>
         {renderModal()}
-        <BannerAd />
-      </>
+      </GlassBackground>
     );
   }
 
   // RESULTS SCREEN
   if (screen === "results") {
     const handlePlayAgain = async () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       await clearGameState();
       router.replace("/");
     };
 
+    const handleRematchSameCard = async () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+      await clearGameState();
+      const freshPlayers: Player[] = players.map((p) => ({
+        name: p.name,
+        scores: Array(numHoles).fill(""),
+        rerollsUsed: 0,
+        throwsPerHole: Array(numHoles)
+          .fill(null)
+          .map(() => []),
+      }));
+      setPlayers(freshPlayers);
+      setCurrentHole(0);
+      setCurrentThrow(1);
+      setCurrentPlayerIndex(0);
+      setPlayersFinishedCurrentHole(new Set());
+      setUndoStack([]);
+      setScreen("game");
+      if (numPlayers > 1) {
+        setShowPlayerSelect(true);
+      } else {
+        const newRoll = getRandomString();
+        setCurrentRoll(newRoll);
+        animateRoll(newRoll);
+      }
+    };
+
     const handlePlayerTabChange = (index: number) => {
+      Haptics.selectionAsync().catch(() => {});
       setSelectedPlayerIndex(index);
-      // Scroll to top when changing player - use setTimeout to ensure state update completes
       setTimeout(() => {
         statsScrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: false });
       }, 0);
     };
 
-    const selectedPlayer = players[selectedPlayerIndex];
-    const throwsPerHole = selectedPlayer.throwsPerHole || [];
-    const totalThrows = throwsPerHole.reduce(
-      (sum, holeThrows) => sum + (holeThrows?.length || 0),
-      0,
-    );
+    // Compute ranked leaderboard
+    const leaderboard = players
+      .map((player, index) => {
+        const throwsArr = player.throwsPerHole || [];
+        const total = throwsArr.reduce(
+          (sum, h) => sum + (h?.length || 0),
+          0,
+        );
+        const holeCounts = throwsArr
+          .map((h) => h?.length || 0)
+          .filter((c) => c > 0);
+        const bestHole =
+          holeCounts.length > 0 ? Math.min(...holeCounts) : 0;
+        const avg =
+          numHoles > 0 ? (total / numHoles).toFixed(1) : "0.0";
+        return {
+          player,
+          index,
+          total,
+          bestHole,
+          avg,
+        };
+      })
+      .sort((a, b) => a.total - b.total);
+
+    const selectedEntry =
+      leaderboard.find((e) => e.index === selectedPlayerIndex) ||
+      leaderboard[0];
+    const selectedPlayer = selectedEntry.player;
+
+    const getMedal = (rankIndex: number) => {
+      if (rankIndex === 0) return "🥇";
+      if (rankIndex === 1) return "🥈";
+      if (rankIndex === 2) return "🥉";
+      return `#${rankIndex + 1}`;
+    };
+
+    const getPodiumTint = (rankIndex: number, isSelected: boolean) => {
+      if (isSelected) return GlassPalette.glassEmerald;
+      if (rankIndex === 0) return "rgba(252, 174, 36, 0.22)";
+      if (rankIndex === 1) return "rgba(226, 232, 240, 0.16)";
+      if (rankIndex === 2) return "rgba(244, 127, 29, 0.18)";
+      return "rgba(255, 255, 255, 0.08)";
+    };
+
+    const getPodiumBorder = (rankIndex: number, isSelected: boolean) => {
+      if (isSelected) return GlassPalette.specularEmeraldRim;
+      if (rankIndex === 0) return GlassPalette.specularGoldRim;
+      if (rankIndex === 1) return "rgba(226, 232, 240, 0.45)";
+      if (rankIndex === 2) return "rgba(251, 146, 60, 0.48)";
+      return GlassPalette.specularBorderSoft;
+    };
 
     return (
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.content}>
-          <ThemedText type="title" style={styles.title}>
-            {UI_TEXT.RESULTS_TITLE}
-          </ThemedText>
-
-          {/* Player Tabs - only show if more than one player */}
-          {numPlayers > 1 && (
-            <View style={styles.tabsWrapper}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.tabsContainer}
-                contentContainerStyle={styles.tabsContentContainer}
-              >
-                {players.map((player, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.tab,
-                      selectedPlayerIndex === index && styles.tabActive,
-                    ]}
-                    onPress={() => handlePlayerTabChange(index)}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.tabText,
-                        selectedPlayerIndex === index && styles.tabTextActive,
-                      ]}
-                    >
-                      {player.name}
-                    </ThemedText>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-
-          {/* Player Statistics */}
-          <ScrollView ref={statsScrollViewRef} style={styles.statsScrollView}>
-            {totalThrows > 0 && (
-              <ThemedView style={styles.summaryCard}>
-                <ThemedView style={styles.summaryStatsRow}>
-                  <ThemedView style={styles.summaryStatItem}>
-                    <ThemedText style={styles.summaryStatLabel}>
-                      {UI_TEXT.RESULTS_TOTAL_THROWS}
-                    </ThemedText>
-                    <ThemedText style={styles.summaryStatValue}>
-                      {totalThrows}
-                    </ThemedText>
-                  </ThemedView>
-                </ThemedView>
-              </ThemedView>
-            )}
-
-            {selectedPlayer.scores.map((score, holeIndex) => {
-              const holeThrows =
-                selectedPlayer.throwsPerHole?.[holeIndex] || [];
-
-              return (
-                <ThemedView key={holeIndex} style={styles.holeDetailCard}>
-                  <ThemedText style={styles.holeDetailTitle}>
-                    {UI_TEXT.RESULTS_HOLE(holeIndex + 1)}
-                  </ThemedText>
-
-                  {holeThrows.length > 0 && (
-                    <ThemedView style={styles.throwsList}>
-                      {holeThrows.map((throwData, throwIndex) => (
-                        <ThemedView key={throwIndex} style={styles.throwItem}>
-                          <ThemedText style={styles.throwNumber}>
-                            {throwIndex + 1}.
-                          </ThemedText>
-                          <ThemedText style={styles.throwResult}>
-                            {throwData.result}
-                          </ThemedText>
-                        </ThemedView>
-                      ))}
-                    </ThemedView>
-                  )}
-                </ThemedView>
-              );
-            })}
-          </ScrollView>
-
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handlePlayAgain}
+      <GlassBackground variant="celebration">
+        <View style={styles.container}>
+          <View
+            style={[
+              styles.content,
+              {
+                paddingTop: Math.max(20, insets.top + 12),
+                paddingBottom: Math.max(20, insets.bottom + 12),
+              },
+            ]}
           >
-            <ThemedText style={styles.continueButtonText}>
-              {UI_TEXT.RESULTS_PLAY_AGAIN}
+            <ThemedText type="title" style={styles.title}>
+              🏆 {UI_TEXT.RESULTS_TITLE}
             </ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-      </ThemedView>
+
+            <GlassScrollView
+              ref={statsScrollViewRef}
+              containerStyle={styles.statsScrollView}
+            >
+              {/* Standings / Podium Leaderboard */}
+              <LiquidGlassView
+                effect="regular"
+                tintColor={GlassPalette.glassNeutral}
+                borderColor={GlassPalette.specularBorderBright}
+                borderRadius={24}
+                style={styles.leaderboardCard}
+              >
+                <ThemedText style={styles.leaderboardHeaderTitle}>
+                  {UI_TEXT.RESULTS_LEADERBOARD} ({numHoles} Holes)
+                </ThemedText>
+                {leaderboard.map((entry, rankIdx) => {
+                  const isSelected = entry.index === selectedPlayerIndex;
+                  return (
+                    <TouchableOpacity
+                      key={entry.index}
+                      activeOpacity={0.82}
+                      onPress={() => handlePlayerTabChange(entry.index)}
+                    >
+                      <LiquidGlassView
+                        effect={isSelected ? "regular" : "clear"}
+                        tintColor={getPodiumTint(rankIdx, isSelected)}
+                        borderColor={getPodiumBorder(rankIdx, isSelected)}
+                        borderRadius={16}
+                        interactive
+                        style={styles.leaderboardRow}
+                      >
+                        <View style={styles.leaderboardLeft}>
+                          <ThemedText style={styles.leaderboardMedal}>
+                            {getMedal(rankIdx)}
+                          </ThemedText>
+                          <View>
+                            <ThemedText style={styles.leaderboardPlayerName}>
+                              {entry.player.name}
+                            </ThemedText>
+                            <ThemedText style={styles.leaderboardSubStats}>
+                              Avg {entry.avg}/hole • {entry.player.rerollsUsed}{" "}
+                              {entry.player.rerollsUsed === 1
+                                ? "reroll"
+                                : "rerolls"}
+                            </ThemedText>
+                          </View>
+                        </View>
+                        <View style={styles.leaderboardRight}>
+                          <ThemedText style={styles.leaderboardTotalValue}>
+                            {entry.total}
+                          </ThemedText>
+                          <ThemedText style={styles.leaderboardTotalLabel}>
+                            throws
+                          </ThemedText>
+                        </View>
+                      </LiquidGlassView>
+                    </TouchableOpacity>
+                  );
+                })}
+              </LiquidGlassView>
+
+              {/* Player Tabs for Hole-by-Hole Breakdown */}
+              {numPlayers > 1 && (
+                <View style={styles.tabsWrapper}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.tabsContainer}
+                    contentContainerStyle={styles.tabsContentContainer}
+                  >
+                    {players.map((player, index) => {
+                      const active = selectedPlayerIndex === index;
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          activeOpacity={0.8}
+                          onPress={() => handlePlayerTabChange(index)}
+                        >
+                          <LiquidGlassView
+                            effect={active ? "regular" : "clear"}
+                            tintColor={
+                              active
+                                ? GlassPalette.glassEmerald
+                                : GlassPalette.glassNeutral
+                            }
+                            borderColor={
+                              active
+                                ? GlassPalette.specularEmeraldRim
+                                : GlassPalette.specularBorderSoft
+                            }
+                            borderRadius={999}
+                            interactive
+                            style={styles.tab}
+                          >
+                            <ThemedText
+                              style={[
+                                styles.tabText,
+                                active && styles.tabTextActive,
+                              ]}
+                            >
+                              {player.name}
+                            </ThemedText>
+                          </LiquidGlassView>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Selected Player Summary Metrics */}
+              <LiquidGlassGroup spacing={10} style={styles.metricsGrid}>
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassNeutral}
+                  borderColor={GlassPalette.specularBorderSoft}
+                  borderRadius={18}
+                  style={styles.metricBox}
+                >
+                  <ThemedText style={styles.metricValue}>
+                    {selectedEntry.total}
+                  </ThemedText>
+                  <ThemedText style={styles.metricLabel}>
+                    {UI_TEXT.RESULTS_TOTAL_THROWS}
+                  </ThemedText>
+                </LiquidGlassView>
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassNeutral}
+                  borderColor={GlassPalette.specularBorderSoft}
+                  borderRadius={18}
+                  style={styles.metricBox}
+                >
+                  <ThemedText style={styles.metricValue}>
+                    {selectedEntry.avg}
+                  </ThemedText>
+                  <ThemedText style={styles.metricLabel}>
+                    {UI_TEXT.RESULTS_AVERAGE}
+                  </ThemedText>
+                </LiquidGlassView>
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassNeutral}
+                  borderColor={GlassPalette.specularBorderSoft}
+                  borderRadius={18}
+                  style={styles.metricBox}
+                >
+                  <ThemedText style={styles.metricValue}>
+                    {selectedEntry.bestHole || "-"}
+                  </ThemedText>
+                  <ThemedText style={styles.metricLabel}>
+                    {UI_TEXT.RESULTS_BEST_HOLE}
+                  </ThemedText>
+                </LiquidGlassView>
+              </LiquidGlassGroup>
+
+              {/* Hole-by-Hole Breakdown */}
+              {selectedPlayer.scores.map((_, holeIndex) => {
+                const holeThrows =
+                  selectedPlayer.throwsPerHole?.[holeIndex] || [];
+
+                return (
+                  <LiquidGlassView
+                    key={holeIndex}
+                    effect="clear"
+                    tintColor={GlassPalette.glassNeutral}
+                    borderColor={GlassPalette.specularBorderSoft}
+                    borderRadius={18}
+                    style={styles.holeDetailCard}
+                  >
+                    <View style={styles.holeDetailHeader}>
+                      <ThemedText style={styles.holeDetailTitle}>
+                        {UI_TEXT.RESULTS_HOLE(holeIndex + 1)}
+                      </ThemedText>
+                      <View style={styles.holeDetailScorePill}>
+                        <ThemedText style={styles.holeDetailScore}>
+                          {UI_TEXT.RESULTS_THROWS_COUNT(holeThrows.length)}
+                        </ThemedText>
+                      </View>
+                    </View>
+
+                    {holeThrows.length > 0 && (
+                      <View style={styles.throwsList}>
+                        {holeThrows.map((throwData, throwIndex) => (
+                          <View key={throwIndex} style={styles.throwItem}>
+                            <ThemedText style={styles.throwNumber}>
+                              #{throwIndex + 1}
+                            </ThemedText>
+                            <ThemedText style={styles.throwResult}>
+                              {throwData.result}
+                            </ThemedText>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </LiquidGlassView>
+                );
+              })}
+            </GlassScrollView>
+
+            <LiquidGlassGroup spacing={10} style={styles.resultsButtonsStack}>
+              <TouchableOpacity
+                onPress={handleRematchSameCard}
+                activeOpacity={0.85}
+              >
+                <LiquidGlassView
+                  effect="regular"
+                  tintColor={GlassPalette.glassLimeCTA}
+                  borderColor={GlassPalette.specularEmeraldRim}
+                  borderRadius={20}
+                  interactive
+                  style={styles.rematchButton}
+                >
+                  <ThemedText style={styles.rematchButtonText}>
+                    {UI_TEXT.RESULTS_REMATCH}
+                  </ThemedText>
+                </LiquidGlassView>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handlePlayAgain} activeOpacity={0.85}>
+                <LiquidGlassView
+                  effect="clear"
+                  tintColor={GlassPalette.glassNeutral}
+                  borderColor={GlassPalette.specularBorderBright}
+                  borderRadius={18}
+                  interactive
+                  style={styles.continueButton}
+                >
+                  <ThemedText style={styles.continueButtonText}>
+                    {UI_TEXT.RESULTS_PLAY_AGAIN}
+                  </ThemedText>
+                </LiquidGlassView>
+              </TouchableOpacity>
+            </LiquidGlassGroup>
+          </View>
+        </View>
+      </GlassBackground>
     );
   }
 

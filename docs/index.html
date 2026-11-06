@@ -2,93 +2,994 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Crazy Discgolf - Legal & Support</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crazy Disc Golf — Shot Challenges Every Throw (iOS &amp; Android)</title>
+    <meta
+      name="description"
+      content="Turn every hole into a challenge round! Crazy Disc Golf is a party-style scorekeeper and shot challenge generator built by and for disc golfers. 100% Free, Offline, Zero Ads."
+    />
+    <meta property="og:title" content="Crazy Disc Golf — Shot Challenges Every Throw" />
+    <meta
+      property="og:description"
+      content="24 disc-golf-specific shot modifiers, 4 challenge packs, custom course rules, and multiplayer scorekeeping for up to 10 players. 100% Free & Ad-Free."
+    />
+    <meta property="og:image" content="https://fooaldrin.github.io/crazydiscgolf/assets/og-image.png" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Slackey&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
-        --bg: #f5fbff;
-        --card: #ffffff;
-        --text: #1f2a37;
-        --muted: #526070;
-        --accent: #0b7a75;
-        --border: #d8e6ee;
+        --canopy-deep: #061710;
+        --fairway-emerald: #0d3520;
+        --moss-dark: #124228;
+        --canopy-floor: #081e13;
+        --lime: #a8e64c;
+        --lime-bright: #c6f66f;
+        --green: #6bc235;
+        --gold: #fcae24;
+        --gold-soft: #ffd166;
+        --orange: #f47f1d;
+        --violet: #8a3fd9;
+        --cyan: #2b8cbe;
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --glass-elevated: rgba(255, 255, 255, 0.13);
+        --glass-recessed: rgba(4, 16, 10, 0.55);
+        --border-soft: rgba(255, 255, 255, 0.16);
+        --border-bright: rgba(168, 230, 76, 0.55);
+        --text-primary: #ffffff;
+        --text-secondary: rgba(240, 253, 244, 0.82);
+        --text-muted: rgba(240, 253, 244, 0.58);
       }
+
       * {
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
-        margin: 0;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-          sans-serif;
-        background: linear-gradient(180deg, #eef8ff 0%, var(--bg) 100%);
-        color: var(--text);
+        font-family: "Fredoka", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--canopy-deep);
+        background-image:
+          radial-gradient(circle at 15% 15%, rgba(168, 230, 76, 0.22) 0%, transparent 42%),
+          radial-gradient(circle at 85% 22%, rgba(252, 174, 36, 0.16) 0%, transparent 38%),
+          radial-gradient(circle at 50% 65%, rgba(138, 63, 217, 0.14) 0%, transparent 45%),
+          linear-gradient(180deg, var(--canopy-deep) 0%, var(--fairway-emerald) 45%, var(--canopy-floor) 100%);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        line-height: 1.5;
       }
-      main {
-        max-width: 780px;
-        margin: 0 auto;
-        padding: 28px 16px 60px;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 18px;
-        margin-top: 14px;
-      }
-      h1 {
-        margin: 0 0 8px;
-        font-size: 30px;
-      }
-      h2 {
-        margin: 0 0 8px;
-        font-size: 20px;
-      }
-      p {
-        color: var(--muted);
-        line-height: 1.6;
-        margin: 0;
-      }
+
       a {
-        color: var(--accent);
+        color: inherit;
         text-decoration: none;
+      }
+
+      .container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Top Navigation */
+      header {
+        position: sticky;
+        top: 16px;
+        z-index: 50;
+        padding: 0 16px;
+        margin-top: 16px;
+      }
+
+      .nav-bar {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        border-radius: 999px;
+        background: rgba(8, 30, 19, 0.72);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border-soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid var(--border-bright);
+        box-shadow: 0 4px 12px rgba(168, 230, 76, 0.25);
+      }
+
+      .brand-title {
+        font-family: "Slackey", cursive;
+        font-size: 1.2rem;
+        letter-spacing: 0.4px;
+        color: var(--text-primary);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+      }
+
+      .nav-links a:hover {
+        color: var(--lime-bright);
+      }
+
+      .nav-cta {
+        background: linear-gradient(135deg, var(--lime) 0%, var(--green) 100%);
+        color: #05160e !important;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-weight: 700;
+        box-shadow: 0 4px 16px rgba(168, 230, 76, 0.32);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .nav-cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(168, 230, 76, 0.48);
+      }
+
+      /* Hero Section */
+      .hero {
+        padding: 64px 0 56px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 48px;
+        align-items: center;
+      }
+
+      .pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(168, 230, 76, 0.16);
+        border: 1px solid rgba(168, 230, 76, 0.45);
+        color: var(--lime-bright);
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        font-family: "Slackey", cursive;
+        font-size: clamp(2.4rem, 5vw, 3.8rem);
+        line-height: 1.12;
+        margin-bottom: 18px;
+        text-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+      }
+
+      .hero h1 span {
+        background: linear-gradient(135deg, var(--lime-bright) 0%, var(--gold) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-lead {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        max-width: 560px;
+        margin-bottom: 32px;
+      }
+
+      /* Store Download Buttons */
+      .store-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .store-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 24px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.11);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(255, 255, 255, 0.28);
+        color: var(--text-primary);
+        transition: all 0.2s ease;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+        min-width: 215px;
+      }
+
+      .store-btn.apple {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07));
+        border-color: rgba(255, 255, 255, 0.38);
+      }
+
+      .store-btn.android {
+        background: linear-gradient(145deg, rgba(168, 230, 76, 0.24), rgba(107, 194, 53, 0.1));
+        border-color: rgba(168, 230, 76, 0.55);
+      }
+
+      .store-btn:hover {
+        transform: translateY(-3px);
+        border-color: var(--lime-bright);
+        box-shadow: 0 14px 34px rgba(168, 230, 76, 0.25);
+      }
+
+      .store-btn svg {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+      }
+
+      .store-btn-text {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        line-height: 1.15;
+      }
+
+      .store-btn-sub {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        color: var(--text-secondary);
         font-weight: 600;
       }
-      a:hover {
-        text-decoration: underline;
+
+      .store-btn-main {
+        font-size: 1.18rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
       }
-      ul {
-        margin: 10px 0 0;
-        padding-left: 18px;
-        color: var(--muted);
+
+      .direct-apk-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+      }
+
+      .direct-apk-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--lime-bright);
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: rgba(168, 230, 76, 0.1);
+        border: 1px solid rgba(168, 230, 76, 0.28);
+        transition: background 0.15s ease;
+      }
+
+      .direct-apk-link:hover {
+        background: rgba(168, 230, 76, 0.22);
+      }
+
+      /* Interactive Slot Machine Demo Card */
+      .slot-demo-card {
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1.5px solid rgba(255, 255, 255, 0.26);
+        border-radius: 28px;
+        padding: 28px 24px;
+        box-shadow:
+          0 24px 60px rgba(0, 0, 0, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        text-align: center;
+        position: relative;
+      }
+
+      .slot-demo-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+
+      .slot-window {
+        background: var(--glass-recessed);
+        border: 1.5px solid var(--border-bright);
+        border-radius: 20px;
+        padding: 24px 18px;
+        min-height: 175px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        box-shadow: inset 0 6px 20px rgba(0, 0, 0, 0.55);
+        transition: border-color 0.25s ease;
+      }
+
+      .category-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: rgba(168, 230, 76, 0.24);
+        border: 1px solid rgba(168, 230, 76, 0.65);
+        color: #d9f99d;
+      }
+
+      .modifier-title {
+        font-family: "Slackey", cursive;
+        font-size: 1.65rem;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+      }
+
+      .modifier-desc {
+        font-size: 0.98rem;
+        color: var(--text-secondary);
+        max-width: 320px;
+      }
+
+      .spin-btn {
+        width: 100%;
+        cursor: pointer;
+        border: none;
+        font-family: "Slackey", cursive;
+        font-size: 1.15rem;
+        padding: 15px 24px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 100%);
+        color: #1a0d00;
+        box-shadow: 0 8px 24px rgba(252, 174, 36, 0.38);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .spin-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(252, 174, 36, 0.52);
+      }
+
+      .spin-btn:active {
+        transform: scale(0.98);
+      }
+
+      /* Screenshots Showcase */
+      .section {
+        padding: 64px 0;
+      }
+
+      .section-header {
+        text-align: center;
+        max-width: 680px;
+        margin: 0 auto 44px;
+      }
+
+      .section-header h2 {
+        font-family: "Slackey", cursive;
+        font-size: clamp(1.85rem, 3.5vw, 2.5rem);
+        margin-bottom: 12px;
+      }
+
+      .section-header p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+      }
+
+      .screenshots-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        align-items: start;
+      }
+
+      .phone-frame {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 32px;
+        padding: 12px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        transition: transform 0.25s ease, border-color 0.25s ease;
+      }
+
+      .phone-frame:hover {
+        transform: translateY(-6px);
+        border-color: var(--border-bright);
+      }
+
+      .phone-frame img {
+        width: 100%;
+        height: auto;
+        border-radius: 22px;
+        display: block;
+      }
+
+      .phone-caption {
+        text-align: center;
+        padding: 14px 8px 6px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.98rem;
+      }
+
+      /* Features Grid */
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+
+      .feature-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-soft);
+        border-radius: 22px;
+        padding: 26px 24px;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .feature-card:hover {
+        border-color: var(--border-bright);
+        transform: translateY(-3px);
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(168, 230, 76, 0.16);
+        border: 1px solid rgba(168, 230, 76, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+      }
+
+      .feature-card h3 {
+        font-size: 1.22rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--lime-bright);
+      }
+
+      .feature-card p {
+        color: var(--text-secondary);
+        font-size: 0.96rem;
+      }
+
+      /* Bottom Download Banner */
+      .cta-banner {
+        margin: 32px 0 64px;
+        padding: 48px 32px;
+        border-radius: 32px;
+        background: linear-gradient(
+          135deg,
+          rgba(107, 194, 53, 0.24) 0%,
+          rgba(13, 53, 32, 0.85) 55%,
+          rgba(252, 174, 36, 0.18) 100%
+        );
+        border: 1.5px solid var(--border-bright);
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      }
+
+      .cta-banner h2 {
+        font-family: "Slackey", cursive;
+        font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+        margin-bottom: 12px;
+      }
+
+      .cta-banner p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        max-width: 560px;
+        margin: 0 auto 28px;
+      }
+
+      .cta-banner .store-buttons {
+        justify-content: center;
+      }
+
+      .cta-banner .direct-apk-row {
+        justify-content: center;
+        margin-top: 14px;
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--border-soft);
+        padding: 36px 0 48px;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      .footer-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        font-weight: 600;
+      }
+
+      .footer-links a:hover {
+        color: var(--lime-bright);
+      }
+
+      @media (max-width: 920px) {
+        .hero {
+          grid-template-columns: 1fr;
+          text-align: center;
+          padding: 40px 0;
+        }
+        .hero-lead {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .store-buttons,
+        .direct-apk-row {
+          justify-content: center;
+        }
+        .screenshots-grid,
+        .features-grid {
+          grid-template-columns: 1fr;
+          max-width: 440px;
+          margin: 0 auto;
+        }
+        .nav-links a:not(.nav-cta) {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <h1>Crazy Discgolf</h1>
-      <p>Official legal and support pages for the iOS app.</p>
+    <header>
+      <nav class="nav-bar">
+        <a href="./" class="brand">
+          <img src="./assets/icon.png" alt="Crazy Disc Golf App Icon" />
+          <span class="brand-title">Crazy Disc Golf</span>
+        </a>
+        <div class="nav-links">
+          <a href="#screenshots">Screenshots</a>
+          <a href="#features">Features</a>
+          <a href="./support/">Support</a>
+          <a href="./privacy/">Privacy</a>
+          <a href="#download" class="nav-cta">Get the App</a>
+        </div>
+      </nav>
+    </header>
 
-      <section class="card">
-        <h2>Privacy Policy</h2>
-        <p>How data is handled in Crazy Discgolf.</p>
-        <ul>
-          <li><a href="./privacy/">Open Privacy Policy</a></li>
-        </ul>
+    <main class="container">
+      <!-- Hero Section -->
+      <section class="hero">
+        <div>
+          <div class="pill-badge">
+            <span>🥏 v2.0 Liquid Glass Edition</span>
+            <span>•</span>
+            <span>100% Free &amp; No Ads</span>
+          </div>
+          <h1>
+            Turn Every Hole Into a <span>Challenge Round!</span>
+          </h1>
+          <p class="hero-lead">
+            Crazy Disc Golf is the party-style scorekeeper and shot modifier slot machine built by and for disc golfers. Play solo or up to a 10-player card and roll a fresh throw constraint on every lie.
+          </p>
+
+          <div class="store-buttons" id="download">
+            <!-- Apple App Store Button -->
+            <a
+              href="https://apps.apple.com/app/id6780675093"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="store-btn apple"
+              aria-label="Download Crazy Disc Golf on the Apple App Store"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.33c.64-.78 1.08-1.86.96-2.94-.93.04-2.06.62-2.72 1.4-.58.68-1.1 1.79-.96 2.84 1.04.08 2.08-.52 2.72-1.3"
+                />
+              </svg>
+              <div class="store-btn-text">
+                <span class="store-btn-sub">Download on the</span>
+                <span class="store-btn-main">App Store</span>
+              </div>
+            </a>
+
+            <!-- Google Play Store Button -->
+            <a
+              href="https://play.google.com/store/apps/details?id=com.crazydiscgolf.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="store-btn android"
+              aria-label="Get Crazy Disc Golf on Google Play"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M3.609 1.814L13.792 12 3.61 22.186a1.986 1.986 0 0 1-.61-1.434V3.248c0-.56.23-1.07.609-1.434zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1.49 1.49 0 0 1 0 2.58l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.802 8.99l-2.303 2.303-8.635-8.635z"
+                />
+              </svg>
+              <div class="store-btn-text">
+                <span class="store-btn-sub">Get it on</span>
+                <span class="store-btn-main">Google Play</span>
+              </div>
+            </a>
+          </div>
+
+          <div class="direct-apk-row">
+            <span>On Android without Play Store?</span>
+            <a
+              href="https://github.com/fooaldrin/crazydiscgolf/releases/latest"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="direct-apk-link"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download Direct Android .APK
+            </a>
+          </div>
+        </div>
+
+        <!-- Interactive Challenge Slot Machine Widget -->
+        <div class="slot-demo-card">
+          <div class="slot-demo-header">
+            <span>🎰 LIVE THROW GENERATOR PREVIEW</span>
+            <span id="spin-counter">Throw #1</span>
+          </div>
+          <div class="slot-window" id="slot-window">
+            <span class="category-pill" id="mod-cat">🥏 Disc Selection</span>
+            <div class="modifier-title" id="mod-title">Putter Only</div>
+            <p class="modifier-desc" id="mod-desc">
+              Must throw a putter (off the tee, fairway, or green).
+            </p>
+          </div>
+          <button type="button" class="spin-btn" id="spin-btn">
+            <span>🎲 Spin Next Throw Challenge</span>
+          </button>
+        </div>
       </section>
 
-      <section class="card">
-        <h2>Support</h2>
-        <p>Need help, found a bug, or have a feature request?</p>
-        <ul>
-          <li><a href="./support/">Open Support Page</a></li>
-          <li>
-            <a href="https://github.com/fooaldrin/crazydiscgolf/issues"
-              >GitHub Issues</a
-            >
-          </li>
-        </ul>
+      <!-- Screenshots Section -->
+      <section class="section" id="screenshots">
+        <div class="section-header">
+          <h2>Built for the Fairway</h2>
+          <p>
+            High-contrast Liquid Glass UI designed for bright sunlight, one-handed scorekeeping, and instant haptic slot rolls on the tee pad.
+          </p>
+        </div>
+
+        <div class="screenshots-grid">
+          <div class="phone-frame">
+            <img
+              src="./assets/screenshot-1.png"
+              alt="Crazy Disc Golf Slot Machine Throw Challenge Screen"
+              loading="lazy"
+            />
+            <div class="phone-caption">Spin Shot Challenges Every Throw</div>
+          </div>
+          <div class="phone-frame">
+            <img
+              src="./assets/screenshot-2.png"
+              alt="Crazy Disc Golf 4 Preset Challenge Packs Screen"
+              loading="lazy"
+            />
+            <div class="phone-caption">4 Preset Packs &amp; Custom Rules</div>
+          </div>
+          <div class="phone-frame">
+            <img
+              src="./assets/screenshot-3.png"
+              alt="Crazy Disc Golf Final Podium & Hole-by-Hole Leaderboard"
+              loading="lazy"
+            />
+            <div class="phone-caption">Live Scorecard &amp; Podium Leaderboard</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="section" id="features">
+        <div class="section-header">
+          <h2>Everything Your Card Needs</h2>
+          <p>
+            Whether you're spicing up a casual Friday league or working on shot-shaping solo, Crazy Disc Golf keeps every hole fresh.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🥏</div>
+            <h3>24 Shot Modifiers</h3>
+            <p>
+              Spanning 5 categories: Disc Selection, Shot Shape &amp; Line, Grip &amp; Stance, Card Chaos, and Wildcard Bonuses.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🎒</div>
+            <h3>4 Challenge Packs</h3>
+            <p>
+              Switch between <strong>All-Out Chaos</strong>, <strong>Casual League</strong>, <strong>Lines &amp; Form Clinic</strong>, or <strong>Party &amp; Trick Shots</strong> in one tap.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">✨</div>
+            <h3>Custom Course Rules</h3>
+            <p>
+              Add your own local course mandos, island greens, club rules, and inside jokes directly into the slot pool.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <h3>Up to 10 Players</h3>
+            <p>
+              Full multiplayer turn tracking, configurable reroll tokens per player, live mid-round standings, and 1-tap rematch.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Course-Ready UX</h3>
+            <p>
+              Tap-to-skip slot spin, Undo last throw, automatic round progress saving, and zero login friction.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>100% Free &amp; Offline</h3>
+            <p>
+              Built as a passion project for the disc golf community. Zero ads, zero subscriptions, and zero data tracking.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Call to Action -->
+      <section class="cta-banner">
+        <h2>Ready for Tee-Off?</h2>
+        <p>
+          Grab Crazy Disc Golf on iOS or Android for free and bring chaos to your next 9 or 18 holes.
+        </p>
+
+        <div class="store-buttons">
+          <a
+            href="https://apps.apple.com/app/id6780675093"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="store-btn apple"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.33c.64-.78 1.08-1.86.96-2.94-.93.04-2.06.62-2.72 1.4-.58.68-1.1 1.79-.96 2.84 1.04.08 2.08-.52 2.72-1.3"
+              />
+            </svg>
+            <div class="store-btn-text">
+              <span class="store-btn-sub">Download on the</span>
+              <span class="store-btn-main">App Store</span>
+            </div>
+          </a>
+
+          <a
+            href="https://play.google.com/store/apps/details?id=com.crazydiscgolf.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="store-btn android"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M3.609 1.814L13.792 12 3.61 22.186a1.986 1.986 0 0 1-.61-1.434V3.248c0-.56.23-1.07.609-1.434zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1.49 1.49 0 0 1 0 2.58l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.802 8.99l-2.303 2.303-8.635-8.635z"
+              />
+            </svg>
+            <div class="store-btn-text">
+              <span class="store-btn-sub">Get it on</span>
+              <span class="store-btn-main">Google Play</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="direct-apk-row">
+          <a
+            href="https://github.com/fooaldrin/crazydiscgolf/releases/latest"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="direct-apk-link"
+          >
+            Download Direct Android .APK (v2.0.0)
+          </a>
+        </div>
       </section>
     </main>
+
+    <footer>
+      <div class="container footer-inner">
+        <div>
+          © 2026 Crazy Disc Golf · Built by Thomas Aldrin (<a
+            href="https://www.instagram.com/aldrin_discgolf"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--lime-bright)"
+            >@aldrin_discgolf</a
+          >)
+        </div>
+        <div class="footer-links">
+          <a href="./privacy/">Privacy Policy</a>
+          <a href="./support/">Support</a>
+          <a
+            href="https://github.com/fooaldrin/crazydiscgolf/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub Issues</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const MODIFIERS = [
+        {
+          cat: "🥏 Disc Selection",
+          color: "#D9F99D",
+          bg: "rgba(107, 194, 53, 0.26)",
+          border: "rgba(168, 230, 76, 0.68)",
+          title: "Driver Only",
+          desc: "Must throw a distance or fairway driver for this shot—even inside the circle!",
+        },
+        {
+          cat: "📐 Shot Shape & Line",
+          color: "#BAE6FD",
+          bg: "rgba(43, 140, 190, 0.28)",
+          border: "rgba(125, 211, 252, 0.68)",
+          title: "Anhyzer / Turnover",
+          desc: "Release on an anhyzer angle—force a flex or hold the turnover line.",
+        },
+        {
+          cat: "🎯 Grip & Stance",
+          color: "#FED7AA",
+          bg: "rgba(244, 127, 29, 0.28)",
+          border: "rgba(253, 186, 116, 0.68)",
+          title: "Turbo Putt",
+          desc: "Hold the disc like a pizza tray above your shoulder and spin it forward!",
+        },
+        {
+          cat: "🔥 Card Chaos",
+          color: "#E9D5FF",
+          bg: "rgba(138, 63, 217, 0.30)",
+          border: "rgba(216, 180, 254, 0.68)",
+          title: "Opponent's Choice",
+          desc: "Another player on the card picks which disc from your bag you must throw.",
+        },
+        {
+          cat: "📐 Shot Shape & Line",
+          color: "#BAE6FD",
+          bg: "rgba(43, 140, 190, 0.28)",
+          border: "rgba(125, 211, 252, 0.68)",
+          title: "Spike Hyzer / Grenade",
+          desc: "Take the high vertical route over the top with a steep landing angle.",
+        },
+        {
+          cat: "🎯 Grip & Stance",
+          color: "#FED7AA",
+          bg: "rgba(244, 127, 29, 0.28)",
+          border: "rgba(253, 186, 116, 0.68)",
+          title: "Flamingo Stance",
+          desc: "Balance on one leg during your entire release.",
+        },
+        {
+          cat: "🔥 Card Chaos",
+          color: "#E9D5FF",
+          bg: "rgba(138, 63, 217, 0.30)",
+          border: "rgba(216, 180, 254, 0.68)",
+          title: "Bag Swap",
+          desc: "Borrow a disc from another player's bag for this throw!",
+        },
+        {
+          cat: "🍀 Wildcard Bonus",
+          color: "#FEF08A",
+          bg: "rgba(252, 174, 36, 0.28)",
+          border: "rgba(253, 224, 71, 0.68)",
+          title: "Player B (Best of 2)",
+          desc: "Player B always stripes it! Throw two discs from this lie and play the best one.",
+        },
+        {
+          cat: "🎯 Grip & Stance",
+          color: "#FED7AA",
+          bg: "rgba(244, 127, 29, 0.28)",
+          border: "rgba(253, 186, 116, 0.68)",
+          title: "Patent Pending",
+          desc: "Step out wide facing away from the target like you're deep in the rough.",
+        },
+        {
+          cat: "🥏 Disc Selection",
+          color: "#D9F99D",
+          bg: "rgba(107, 194, 53, 0.26)",
+          border: "rgba(168, 230, 76, 0.68)",
+          title: "Most Understable",
+          desc: "Throw the flippiest, most understable disc in your bag.",
+        },
+      ];
+
+      let throwCount = 1;
+      let spinning = false;
+      const spinBtn = document.getElementById("spin-btn");
+      const modCat = document.getElementById("mod-cat");
+      const modTitle = document.getElementById("mod-title");
+      const modDesc = document.getElementById("mod-desc");
+      const spinCounter = document.getElementById("spin-counter");
+      const slotWindow = document.getElementById("slot-window");
+
+      function applyModifier(item) {
+        modCat.textContent = item.cat;
+        modCat.style.color = item.color;
+        modCat.style.background = item.bg;
+        modCat.style.borderColor = item.border;
+        slotWindow.style.borderColor = item.border;
+        modTitle.textContent = item.title;
+        modDesc.textContent = item.desc;
+      }
+
+      spinBtn.addEventListener("click", () => {
+        if (spinning) return;
+        spinning = true;
+        throwCount += 1;
+        spinCounter.textContent = `Throw #${throwCount}`;
+
+        let ticks = 0;
+        const totalTicks = 10;
+        const interval = setInterval(() => {
+          const rand = MODIFIERS[Math.floor(Math.random() * MODIFIERS.length)];
+          applyModifier(rand);
+          ticks++;
+          if (ticks >= totalTicks) {
+            clearInterval(interval);
+            spinning = false;
+          }
+        }, 65);
+      });
+    </script>
   </body>
 </html>

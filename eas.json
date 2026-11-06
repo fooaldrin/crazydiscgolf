@@ -16,20 +16,34 @@
       "channel": "preview",
       "ios": {
         "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "credentialsSource": "local",
+        "image": "macos-sequoia-15.6-xcode-26.2"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "credentialsSource": "remote"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "6780675093"
+        "appleId": "thomas@thomasaldrin.com",
+        "ascAppId": "6780675093",
+        "appleTeamId": "74XR834VF4",
+        "ascApiKeyPath": "/Users/thomasaldrin/.gemini/config/asc/AuthKey_72SDNZ868F.p8",
+        "ascApiKeyIssuerId": "ed9b464b-285a-4a07-8235-a4343cbe21eb",
+        "ascApiKeyId": "72SDNZ868F"
       }
     }
   }

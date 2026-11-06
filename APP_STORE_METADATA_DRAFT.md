@@ -1,75 +1,45 @@
 # App Store Metadata Final Template (iOS)
 
-Use this as your copy-paste source in App Store Connect.
+Use this as your copy-paste source in App Store Connect (`6780675093`).
 
 ## Basic Info
 
-App Name:
-Crazy Discgolf
-
-Subtitle:
-Disc golf chaos with every throw
-
-Primary Category:
-Games
-
-Secondary Category:
-Sports
+- **App Name:** Crazy Disc Golf
+- **Subtitle:** Shot Challenges Every Throw
+- **Primary Category:** Sports
+- **Secondary Category:** Games
+- **Price:** $0.00 (100% Free, No Ads, No In-App Purchases)
 
 ## Description
 
-Crazy Discgolf adds random challenge rules to every throw so each round feels fresh.
+Turn every hole into a challenge round! Crazy Disc Golf is a party-style scorekeeper and shot challenge generator built by and for disc golfers.
 
-Play solo or with friends, spin a challenge, and adapt your strategy on every shot. It is built for quick casual rounds, party sessions, and players who want more variety in normal disc golf play.
+Play solo practice rounds or up to a 10-player card with friends, spin the slot-machine reel before every throw, and adapt your shot selection on the fly.
 
 Features:
-
-- Random shot challenge every throw
-- 1 to 10 player support
-- Flexible setup for holes and rerolls
-- Custom challenge options
-- Saved game progress between sessions
-- Fast setup and simple in-round controls
-
-Whether you want a quick chaotic hole or a full multiplayer challenge, Crazy Discgolf keeps every round unpredictable and fun.
+- 24 Disc-Golf-Specific Modifiers across 5 categories (Disc Selection, Shot Shape & Line, Grip & Stance, Card Chaos, and Wildcard Bonuses)
+- 4 Quick Preset Challenge Packs: All-Out Chaos, Casual League, Lines & Form Clinic, and Party & Trick Shots
+- Custom Modifier Editor: Add your own local course mandos, club rules, and inside jokes
+- Built for the Course: Haptic slot reel, tap-to-skip spin, Undo last throw, live mid-round scorecard, and auto-saved round progress
+- Full Podium Leaderboard & Hole-by-Hole Throw History with 1-tap Rematch
+- 100% Free, Offline-First, Zero Ads, Zero Tracking
 
 ## Keywords
 
-disc golf,frisbee,golf,sports,party,multiplayer,challenges,minigame,scorecard,casual
+disc golf,frisbee golf,frolf,scorecard,putting,hyzer,forehand,disc golf game,party game,round
 
 ## Promotional Text
 
-Turn every throw into a challenge. Play solo or with friends and make each disc golf round unpredictable.
+Roll a fresh disc golf challenge on every throw! 24 built-in shot modifiers, 4 preset packs, custom course rules, and multiplayer scorekeeping—100% free with zero ads.
 
-## What’s New (Version 1.0.0)
+## Support & Privacy URLs
 
-Initial release of Crazy Discgolf.
-Includes multiplayer challenge gameplay, custom challenge options, and in-round score tracking.
+- **Support URL:** https://fooaldrin.github.io/crazydiscgolf/support/
+- **Marketing URL:** https://fooaldrin.github.io/crazydiscgolf/
+- **Privacy Policy URL:** https://fooaldrin.github.io/crazydiscgolf/privacy/
 
-## Support URL
+## App Review Notes
 
-https://fooaldrin.github.io/crazydiscgolf/support/
-
-## Marketing URL (Optional)
-
-https://fooaldrin.github.io/crazydiscgolf/
-
-## Privacy Policy URL
-
-https://fooaldrin.github.io/crazydiscgolf/privacy/
-
-## App Review Notes (Paste as-is, then edit if needed)
-
-- No login is required.
-- Core flow: Start Game -> choose players and holes -> play throws -> finish hole/game.
-- Ads are integrated using Google Mobile Ads.
-- If ad loading is delayed due to network conditions, core gameplay still works.
-- Test environment note: current development uses test ad IDs; production build will use production IDs.
-
-## App Privacy Suggested Starter Text (for your policy page)
-
-Crazy Discgolf may use third-party advertising SDKs to display ads. These providers may process device and usage data according to their own privacy policies. The app does not require account creation.
-
-Important:
-
-- Ensure App Store Connect privacy answers match your final ad/tracking configuration.
+- No login or account creation required.
+- 100% free with zero ads and zero in-app purchases.
+- Core flow: Tap "Let's Play!" -> Pick players, holes, rerolls, and Challenge Pack -> Enter player names -> Roll shot modifiers on each throw ("Next Throw" or "In the Basket!") -> View final podium leaderboard and hole-by-hole breakdown.

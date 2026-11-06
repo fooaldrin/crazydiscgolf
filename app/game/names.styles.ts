@@ -1,48 +1,95 @@
+import { GlassPalette } from "@/constants/theme";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+  },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+  },
+  backButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+  },
+  backButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: GlassPalette.textPrimary,
+  },
+  roundSummaryPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  roundSummaryBadge: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: GlassPalette.textAccentLime,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     padding: 20,
-    paddingTop: 60,
+    paddingBottom: 48,
   },
   title: {
-    fontSize: 48,
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 40,
+    marginBottom: 6,
     textAlign: "center",
-    color: "#333333",
+    color: GlassPalette.textPrimary,
     fontFamily: "Fredoka_600SemiBold",
-    lineHeight: 56, // Add lineHeight to prevent clipping
+    lineHeight: 40,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: GlassPalette.textSecondary,
+    textAlign: "center",
+    marginBottom: 26,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
+    padding: 16,
   },
   inputLabel: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "800",
     marginBottom: 8,
-    color: "#333333",
+    color: GlassPalette.textAccentLime,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
   },
   input: {
-    backgroundColor: "#EEF7DD",
+    backgroundColor: GlassPalette.glassRecessed,
     borderWidth: 1,
-    borderColor: "#6BC235",
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    color: "#333333",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    borderColor: GlassPalette.specularBorderBright,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 18,
+    fontWeight: "600",
+    color: GlassPalette.textPrimary,
+  },
+  continueButtonTouch: {
+    marginTop: 12,
+    marginBottom: 32,
   },
   continueButton: {
-    marginTop: 20,
-    marginBottom: 40,
+    paddingVertical: 18,
+    alignItems: "center",
+  },
+  continueButtonText: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: GlassPalette.textPrimary,
   },
 });
+
+export default styles;
+
+

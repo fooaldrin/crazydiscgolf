@@ -1,14 +1,18 @@
+import { GlassBackground } from "@/components/glass-background";
+import { LiquidGlassView } from "@/components/liquid-glass";
 import { ThemedText } from "@/components/themed-text";
+import { GlassPalette } from "@/constants/theme";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useGamePersistence } from "@/hooks/use-game-persistence";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Image,
-    Linking,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Image,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -21,7 +25,6 @@ export default function IntroScreen() {
   useEffect(() => {
     const checkSavedGame = async () => {
       const savedState = await loadGameState();
-      // If a game is in progress, go straight to the Continue / Start New screen.
       if (savedState && savedState.screen !== "names") {
         router.replace("/");
         return;
@@ -32,35 +35,58 @@ export default function IntroScreen() {
   }, [loadGameState, router]);
 
   const handleLetsPlay = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     router.push("/");
   };
 
-  // Avoid flashing the "Let's Play" screen before the saved-game check resolves.
   if (!checkedSavedGame) {
-    return <View style={styles.container} />;
+    return <GlassBackground><View style={{ flex: 1 }} /></GlassBackground>;
   }
 
   return (
-    <View style={styles.container}>
+    <GlassBackground>
       <View style={[styles.logoArea, { paddingTop: Math.max(20, insets.top) }]}>
-        <Image
-          source={require("@/assets/images/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-          accessibilityLabel={UI_TEXT.APP_TITLE}
-        />
+        <LiquidGlassView
+          borderRadius={48}
+          tintColor="rgba(168, 230, 76, 0.14)"
+          borderColor={GlassPalette.specularEmeraldRim}
+          style={styles.logoFrame}
+        >
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+            accessibilityLabel={UI_TEXT.APP_TITLE}
+          />
+        </LiquidGlassView>
+        <ThemedText style={styles.title}>{UI_TEXT.APP_TITLE}</ThemedText>
+        <ThemedText style={styles.tagline}>
+          Roll a fresh shot modifier on every throw.
+        </ThemedText>
       </View>
 
       <View
         style={[
           styles.bottomArea,
-          { paddingBottom: Math.max(40, insets.bottom + 40) },
+          { paddingBottom: Math.max(40, insets.bottom + 32) },
         ]}
       >
-        <TouchableOpacity style={styles.playButton} onPress={handleLetsPlay}>
-          <ThemedText style={styles.playButtonText}>
-            {UI_TEXT.INTRO_LETS_PLAY}
-          </ThemedText>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={handleLetsPlay}
+          style={styles.playButtonTouch}
+        >
+          <LiquidGlassView
+            interactive
+            borderRadius={26}
+            tintColor={GlassPalette.glassLimeCTA}
+            borderColor={GlassPalette.specularEmeraldRim}
+            style={styles.playButton}
+          >
+            <ThemedText style={styles.playButtonText}>
+              {UI_TEXT.INTRO_LETS_PLAY}
+            </ThemedText>
+          </LiquidGlassView>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -75,53 +101,57 @@ export default function IntroScreen() {
           <ThemedText style={styles.creditLink}>@aldrin_discgolf</ThemedText>
         </TouchableOpacity>
       </View>
-    </View>
+    </GlassBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8F9F1",
-  },
   logoArea: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 24,
+  },
+  logoFrame: {
+    padding: 18,
+    marginBottom: 20,
   },
   logo: {
-    width: 260,
-    height: 260,
+    width: 210,
+    height: 210,
+    borderRadius: 32,
+  },
+  title: {
+    fontSize: 36,
+    fontFamily: "Fredoka_600SemiBold",
+    color: GlassPalette.textPrimary,
+    lineHeight: 42,
+    textAlign: "center",
+  },
+  tagline: {
+    marginTop: 8,
+    fontSize: 16,
+    color: GlassPalette.textSecondary,
+    textAlign: "center",
   },
   bottomArea: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 32,
     alignItems: "center",
-    gap: 16,
+    gap: 18,
+  },
+  playButtonTouch: {
+    alignSelf: "stretch",
   },
   playButton: {
-    backgroundColor: "#A8E64C",
     paddingVertical: 20,
-    paddingHorizontal: 60,
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: "#6BC235",
-    alignSelf: "stretch",
+    paddingHorizontal: 40,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   playButtonText: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#333333",
-    lineHeight: 40,
+    fontSize: 28,
+    fontWeight: "800",
+    color: GlassPalette.textPrimary,
+    lineHeight: 34,
   },
   credit: {
     alignItems: "center",
@@ -129,11 +159,11 @@ const styles = StyleSheet.create({
   },
   creditText: {
     fontSize: 13,
-    color: "#666666",
+    color: GlassPalette.textMuted,
   },
   creditLink: {
     fontSize: 13,
-    color: "#DC6E10",
-    fontWeight: "600",
+    color: GlassPalette.textAccentGold,
+    fontWeight: "700",
   },
 });

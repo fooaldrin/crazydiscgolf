@@ -41,3 +41,8 @@ app-example
 # generated native folders
 /ios
 /android
+creds/
+credentials.json
+.design-snapshots/
+dist-android/
+
