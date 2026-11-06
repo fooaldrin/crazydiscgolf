@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Crazy Disc Golf — Shot Challenges Every Throw (iOS &amp; Android)</title>
+    <title>Crazy Disc Golf — 100% Free &amp; Ad-Free Shot Challenge App (iOS &amp; Android)</title>
     <meta
       name="description"
-      content="Turn every hole into a challenge round! Crazy Disc Golf is a party-style scorekeeper and shot challenge generator built by and for disc golfers. 100% Free, Offline, Zero Ads."
+      content="Turn every hole into a challenge round! Crazy Disc Golf is 100% free, ad-free, and offline-first with zero subscriptions or paywalls. Built by and for disc golfers."
     />
-    <meta property="og:title" content="Crazy Disc Golf — Shot Challenges Every Throw" />
+    <meta property="og:title" content="Crazy Disc Golf — 100% Free & Ad-Free Shot Challenges" />
     <meta
       property="og:description"
-      content="24 disc-golf-specific shot modifiers, 4 challenge packs, custom course rules, and multiplayer scorekeeping for up to 10 players. 100% Free & Ad-Free."
+      content="24 disc-golf-specific shot modifiers, 4 challenge packs, custom course rules, and multiplayer scorekeeping for up to 10 players. 100% Free, Zero Ads, No Paywalls."
     />
     <meta property="og:image" content="https://fooaldrin.github.io/crazydiscgolf/assets/og-image.png" />
     <meta property="og:type" content="website" />
@@ -42,8 +42,8 @@
         --border-soft: rgba(255, 255, 255, 0.16);
         --border-bright: rgba(168, 230, 76, 0.55);
         --text-primary: #ffffff;
-        --text-secondary: rgba(240, 253, 244, 0.82);
-        --text-muted: rgba(240, 253, 244, 0.58);
+        --text-secondary: rgba(240, 253, 244, 0.84);
+        --text-muted: rgba(240, 253, 244, 0.6);
       }
 
       * {
@@ -95,7 +95,7 @@
         margin: 0 auto;
         padding: 12px 20px;
         border-radius: 999px;
-        background: rgba(8, 30, 19, 0.72);
+        background: rgba(8, 30, 19, 0.78);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--border-soft);
@@ -129,7 +129,7 @@
       .nav-links {
         display: flex;
         align-items: center;
-        gap: 24px;
+        gap: 22px;
         font-weight: 600;
         font-size: 0.95rem;
         color: var(--text-secondary);
@@ -137,6 +137,25 @@
 
       .nav-links a:hover {
         color: var(--lime-bright);
+      }
+
+      .nav-kofi {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: rgba(252, 174, 36, 0.16);
+        border: 1px solid rgba(252, 174, 36, 0.5);
+        color: var(--gold-soft) !important;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.15s ease;
+      }
+
+      .nav-kofi:hover {
+        background: rgba(252, 174, 36, 0.28);
+        transform: translateY(-1px);
       }
 
       .nav-cta {
@@ -156,7 +175,7 @@
 
       /* Hero Section */
       .hero {
-        padding: 64px 0 56px;
+        padding: 58px 0 42px;
         display: grid;
         grid-template-columns: 1.15fr 0.85fr;
         gap: 48px;
@@ -167,19 +186,20 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 6px 14px;
+        padding: 7px 16px;
         border-radius: 999px;
-        background: rgba(168, 230, 76, 0.16);
-        border: 1px solid rgba(168, 230, 76, 0.45);
+        background: rgba(168, 230, 76, 0.18);
+        border: 1.5px solid rgba(168, 230, 76, 0.55);
         color: var(--lime-bright);
-        font-size: 0.88rem;
-        font-weight: 600;
-        margin-bottom: 20px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 20px rgba(168, 230, 76, 0.15);
       }
 
       .hero h1 {
         font-family: "Slackey", cursive;
-        font-size: clamp(2.4rem, 5vw, 3.8rem);
+        font-size: clamp(2.35rem, 4.8vw, 3.7rem);
         line-height: 1.12;
         margin-bottom: 18px;
         text-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
@@ -192,10 +212,35 @@
       }
 
       .hero-lead {
-        font-size: 1.2rem;
+        font-size: 1.18rem;
         color: var(--text-secondary);
-        max-width: 560px;
-        margin-bottom: 32px;
+        max-width: 570px;
+        margin-bottom: 24px;
+      }
+
+      .hero-lead strong {
+        color: var(--lime-bright);
+      }
+
+      /* Zero-BS Trust Pill Row */
+      .zero-bs-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+
+      .zero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 13px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.09);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #ffffff;
       }
 
       /* Store Download Buttons */
@@ -386,9 +431,74 @@
         transform: scale(0.98);
       }
 
+      /* 100% Free & Ad-Free Manifesto Section */
+      .manifesto-banner {
+        margin: 20px 0 36px;
+        padding: 36px 32px;
+        border-radius: 28px;
+        background: linear-gradient(
+          135deg,
+          rgba(168, 230, 76, 0.16) 0%,
+          rgba(8, 30, 19, 0.85) 50%,
+          rgba(43, 140, 190, 0.16) 100%
+        );
+        border: 1.5px solid rgba(168, 230, 76, 0.5);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.38);
+      }
+
+      .manifesto-header {
+        text-align: center;
+        max-width: 720px;
+        margin: 0 auto 28px;
+      }
+
+      .manifesto-header h2 {
+        font-family: "Slackey", cursive;
+        font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+        margin-bottom: 10px;
+        color: var(--lime-bright);
+      }
+
+      .manifesto-header p {
+        font-size: 1.08rem;
+        color: var(--text-secondary);
+      }
+
+      .manifesto-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+      }
+
+      .manifesto-item {
+        background: rgba(4, 16, 10, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 18px;
+        padding: 20px 18px;
+        text-align: center;
+      }
+
+      .manifesto-item .emoji {
+        font-size: 1.9rem;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .manifesto-item h3 {
+        font-size: 1.08rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 6px;
+      }
+
+      .manifesto-item p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
       /* Screenshots Showcase */
       .section {
-        padding: 64px 0;
+        padding: 56px 0;
       }
 
       .section-header {
@@ -491,9 +601,78 @@
         font-size: 0.96rem;
       }
 
+      /* Tip Jar / Ko-fi Card */
+      .tip-jar-card {
+        margin: 24px 0 40px;
+        padding: 36px 32px;
+        border-radius: 28px;
+        background: linear-gradient(
+          135deg,
+          rgba(252, 174, 36, 0.2) 0%,
+          rgba(18, 66, 40, 0.85) 55%,
+          rgba(244, 127, 29, 0.2) 100%
+        );
+        border: 1.5px solid rgba(252, 174, 36, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      }
+
+      .tip-jar-content {
+        max-width: 640px;
+      }
+
+      .tip-jar-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: rgba(252, 174, 36, 0.22);
+        border: 1px solid rgba(252, 174, 36, 0.6);
+        color: var(--gold-soft);
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .tip-jar-content h2 {
+        font-family: "Slackey", cursive;
+        font-size: clamp(1.55rem, 3vw, 2.1rem);
+        margin-bottom: 10px;
+        color: #ffffff;
+      }
+
+      .tip-jar-content p {
+        color: var(--text-secondary);
+        font-size: 1.04rem;
+      }
+
+      .kofi-btn {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 28px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 100%);
+        color: #1a0d00;
+        font-family: "Slackey", cursive;
+        font-size: 1.12rem;
+        box-shadow: 0 10px 28px rgba(252, 174, 36, 0.4);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .kofi-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 34px rgba(252, 174, 36, 0.58);
+      }
+
       /* Bottom Download Banner */
       .cta-banner {
-        margin: 32px 0 64px;
+        margin: 16px 0 64px;
         padding: 48px 32px;
         border-radius: 32px;
         background: linear-gradient(
@@ -566,9 +745,13 @@
           margin-left: auto;
           margin-right: auto;
         }
+        .zero-bs-pills,
         .store-buttons,
         .direct-apk-row {
           justify-content: center;
+        }
+        .manifesto-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
         .screenshots-grid,
         .features-grid {
@@ -576,8 +759,18 @@
           max-width: 440px;
           margin: 0 auto;
         }
-        .nav-links a:not(.nav-cta) {
+        .tip-jar-card {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links a:not(.nav-cta):not(.nav-kofi) {
           display: none;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .manifesto-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -590,10 +783,17 @@
           <span class="brand-title">Crazy Disc Golf</span>
         </a>
         <div class="nav-links">
+          <a href="#promise">100% Free</a>
           <a href="#screenshots">Screenshots</a>
           <a href="#features">Features</a>
-          <a href="./support/">Support</a>
-          <a href="./privacy/">Privacy</a>
+          <a
+            href="https://ko-fi.com/thomasaldrin"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="nav-kofi"
+          >
+            ☕ Tip Jar
+          </a>
           <a href="#download" class="nav-cta">Get the App</a>
         </div>
       </nav>
@@ -604,16 +804,25 @@
       <section class="hero">
         <div>
           <div class="pill-badge">
-            <span>🥏 v2.0 Liquid Glass Edition</span>
+            <span>🥏 100% FREE FOREVER</span>
             <span>•</span>
-            <span>100% Free &amp; No Ads</span>
+            <span>ZERO ADS</span>
+            <span>•</span>
+            <span>NO PAYWALLS</span>
           </div>
           <h1>
             Turn Every Hole Into a <span>Challenge Round!</span>
           </h1>
           <p class="hero-lead">
-            Crazy Disc Golf is the party-style scorekeeper and shot modifier slot machine built by and for disc golfers. Play solo or up to a 10-player card and roll a fresh throw constraint on every lie.
+            Crazy Disc Golf is the party-style scorekeeper and shot modifier slot machine built by and for disc golfers. <strong>Every challenge pack and rule is unlocked out of the box</strong>—no subscriptions, no pop-up ads on the tee pad, and no account required.
           </p>
+
+          <div class="zero-bs-pills">
+            <span class="zero-pill">🚫 Zero Ads</span>
+            <span class="zero-pill">🔓 No In-App Paywalls</span>
+            <span class="zero-pill">📴 100% Offline Ready</span>
+            <span class="zero-pill">🕵️ Zero Data Tracking</span>
+          </div>
 
           <div class="store-buttons" id="download">
             <!-- Apple App Store Button -->
@@ -689,6 +898,38 @@
           <button type="button" class="spin-btn" id="spin-btn">
             <span>🎲 Spin Next Throw Challenge</span>
           </button>
+        </div>
+      </section>
+
+      <!-- 100% Free & Ad-Free Promise Section -->
+      <section class="manifesto-banner" id="promise">
+        <div class="manifesto-header">
+          <h2>Built for Disc Golfers, Not Shareholders</h2>
+          <p>
+            You shouldn't have to watch a 30-second video ad on Hole 4 or pay a monthly subscription just to play a casual challenge round with your card.
+          </p>
+        </div>
+        <div class="manifesto-grid">
+          <div class="manifesto-item">
+            <span class="emoji">🚫</span>
+            <h3>Zero Ads Ever</h3>
+            <p>No banner ads, no video interstitials between holes, and no audio interruptions on the tee pad.</p>
+          </div>
+          <div class="manifesto-item">
+            <span class="emoji">🔓</span>
+            <h3>Nothing Paywalled</h3>
+            <p>All 24 shot modifiers, all 4 challenge packs, custom rule creation, and 10-player cards are 100% free.</p>
+          </div>
+          <div class="manifesto-item">
+            <span class="emoji">🌲</span>
+            <h3>100% Offline</h3>
+            <p>Deep in the woods with zero cell reception? Everything runs locally on your phone with instant response.</p>
+          </div>
+          <div class="manifesto-item">
+            <span class="emoji">🔒</span>
+            <h3>Zero Tracking</h3>
+            <p>No account creation, no email sign-up, and no analytics SDKs harvesting your location or data.</p>
+          </div>
         </div>
       </section>
 
@@ -781,7 +1022,7 @@
 
           <div class="feature-card">
             <div class="feature-icon">🛡️</div>
-            <h3>100% Free &amp; Offline</h3>
+            <h3>100% Free &amp; Ad-Free</h3>
             <p>
               Built as a passion project for the disc golf community. Zero ads, zero subscriptions, and zero data tracking.
             </p>
@@ -789,11 +1030,30 @@
         </div>
       </section>
 
+      <!-- Optional Community Tip Jar (Ko-fi) -->
+      <section class="tip-jar-card" id="support-dev">
+        <div class="tip-jar-content">
+          <span class="tip-jar-badge">🥏 OPTIONAL COMMUNITY TIP JAR</span>
+          <h2>Enjoying the App? Buy Me a Disc!</h2>
+          <p>
+            Crazy Disc Golf is and will always be <strong>100% free with zero ads and zero paywalls</strong>. If the app brought some laughs to your card and you'd like to help replace the next driver Ishank into a lake, you can leave a small tip on Ko-fi!
+          </p>
+        </div>
+        <a
+          href="https://ko-fi.com/thomasaldrin"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="kofi-btn"
+        >
+          <span>☕ Buy Thomas a Disc on Ko-fi</span>
+        </a>
+      </section>
+
       <!-- Bottom Call to Action -->
       <section class="cta-banner">
         <h2>Ready for Tee-Off?</h2>
         <p>
-          Grab Crazy Disc Golf on iOS or Android for free and bring chaos to your next 9 or 18 holes.
+          Grab Crazy Disc Golf on iOS or Android—100% free, zero ads, and ready for your next 9 or 18 holes.
         </p>
 
         <div class="store-buttons">
@@ -857,6 +1117,13 @@
           >)
         </div>
         <div class="footer-links">
+          <a
+            href="https://ko-fi.com/thomasaldrin"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--gold-soft)"
+            >☕ Ko-fi Tip Jar</a
+          >
           <a href="./privacy/">Privacy Policy</a>
           <a href="./support/">Support</a>
           <a
